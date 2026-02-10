@@ -28,7 +28,7 @@ messaging.onBackgroundMessage((payload) => {
 // 3. Offline Support (Moved from your old service-worker.js)
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open('samxi-v4').then((cache) => {
+    caches.open('samxi-v5').then((cache) => {
       return cache.addAll(['index.html', 'manifest.json']);
     })
   );
@@ -41,3 +41,4 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
