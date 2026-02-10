@@ -1,6 +1,6 @@
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open('samxi-v2').then((cache) => {
+    caches.open('samxi-v3').then((cache) => {
       return cache.addAll(['index.html', 'manifest.json']);
     })
   );
@@ -14,3 +14,4 @@ self.addEventListener('fetch', (event) => {
   );
 
 });
+
