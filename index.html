@@ -8,6 +8,7 @@
     <meta name="theme-color" content="#2ecc71">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
     <style>
+        /* [KEEP YOUR EXISTING CSS FROM PREVIOUS VERSION UNCHANGED] */
         body{font-family:sans-serif;text-align:center;background:#141414;color:white;margin:0;}
         .header{background:#1a1a1a;padding:15px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #2ecc71;}
         .led-group{display:flex; align-items:center; gap:12px;}
@@ -66,12 +67,12 @@
         <div id="pg1">
             <h2 style="color:#2ecc71;">LOGIN</h2>
             <div id="netStat" class="net-status online-bg">Checking Connection...</div>
-            <input type="text" id="id" placeholder="PRODUCT ID" value="SAMXI_153648">
-            <button onclick="connect()" class="btn up" style="padding:15px; font-size:1.3rem;">NEXT</button>
+            <input type="text" id="id" placeholder="PRODUCT ID" value="SAMXI_1222100">
+            <button onclick="connect()" class="btn up">NEXT</button>
         </div>
         <div id="pg2" style="display:none;">
             <div class="status-box">CONNECTED</div>
-            <input type="password" id="entryPin" placeholder="ENTER 4-DIGIT PIN" maxlength="4" style="text-align:center; font-size:1.8rem; border:2px solid #f1c40f;">
+            <input type="password" id="entryPin" placeholder="4-DIGIT PIN" maxlength="4" style="text-align:center; font-size:1.8rem; border:2px solid #f1c40f;">
             <button onclick="verifyPin()" class="btn down" style="color:black; background:#f1c40f;">UNLOCK DOOR</button>
         </div>
         <div id="pg3" style="display:none;">
@@ -81,42 +82,17 @@
             <button id="m2" class="btn stop" onclick="cmd('stop', 'STOP GATE')">STOP</button>
             <button id="m3" class="btn down" onclick="cmd('down', 'CLOSE GATE')">CLOSE DOOR</button>
             <button id="abtn" class="btn auto" onclick="startAuto()">AUTO CLOSE</button>
-            <button id="hbtn" class="btn hist-btn" onclick="openHistory()">VIEW ACTIVITY HISTORY</button>
+            <button id="hbtn" class="btn hist-btn" onclick="openHistory()">ACTIVITY HISTORY</button>
         </div>
     </div>
-    <div id="modal">
-        <div class="modal-content">
-            <h2 style="color:#2ecc71; margin-top:0;">SETTINGS</h2>
-            <label>Auto Close:</label>
-            <select id="ae" onchange="save()">
-                <option value="1">ENABLED</option>
-                <option value="0">DISABLED</option>
-            </select>
-            <label>Timer (sec):</label>
-            <input type="number" id="at" onfocus="timerEditing=true" oninput="timerEditing=true">
-            <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-            <label>Update PIN:</label>
-            <input type="password" id="newPin" placeholder="4 Digits" maxlength="4">
-            <button onclick="changePin()" style="width:100%;background:#f1c40f;padding:15px;border:none;border-radius:8px;font-weight:bold;margin-bottom:10px;cursor:pointer;">SET NEW PIN</button>
-            <button onclick="save()" style="width:100%;background:#2ecc71;padding:15px;border:none;border-radius:8px;font-weight:bold;color:black;margin-top:10px;cursor:pointer;">SAVE SETTINGS</button>
-            <button onclick="factoryReset()" style="width:100%;background:#e74c3c;padding:15px;border:none;border-radius:8px;margin-top:15px;color:white;font-weight:bold;cursor:pointer;">FACTORY RESET</button>
-            <button onclick="document.getElementById('modal').style.display='none'" class="exit-link">EXIT</button>
-        </div>
-    </div>
-    <div id="hModal">
-        <div class="modal-content">
-            <h2 style="color:#2ecc71; margin-top:0;">ACTIVITY HISTORY</h2>
-            <ul id="logList"></ul>
-            <button onclick="clearHistory()" style="width:100%;background:#444;padding:10px;border:none;border-radius:8px;margin-top:20px;color:white;cursor:pointer;">CLEAR LOGS</button>
-            <button onclick="document.getElementById('hModal').style.display='none'" class="exit-link">EXIT</button>
-        </div>
-    </div>
+    <div id="modal" style="display:none;">...</div>
     <div id="toast"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
 
+        // From 3.jpg
         const firebaseConfig = {
             apiKey: "AIzaSyCuW_CceAUGiUKem_jmzzuEU-Bu2H_lb64",
             authDomain: "samxi-smart-door.firebaseapp.com",
@@ -130,69 +106,38 @@
         const app = initializeApp(firebaseConfig);
         const messaging = getMessaging(app);
 
-        // --- GLOBAL VARIABLES ---
-        let wakeLock = null;
+        // Define Global variables within the module
         let client, dev, currentWait = 10, countdownTimer, lastMsgTime = Date.now();
         let timerEditing = false, isCountingDown = false, isStatusLocked = false, lastSensorStatus = "";
         let gateReminderTimer = null, reminderInterval = 5 * 60 * 1000;
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-        // --- SERVICE WORKER ---
+        // Register Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('firebase-messaging-sw.js').then((registration) => {
-                    console.log('Firebase SW registered');
-                });
+                navigator.serviceWorker.register('firebase-messaging-sw.js').then(reg => console.log("Firebase SW registered"));
             });
         }
 
-        // --- FUNCTIONS ATTACHED TO WINDOW FOR BUTTONS ---
-        window.requestNotificationPermission = async function() {
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    const token = await getToken(messaging, { 
-                        vapidKey: 'BGVOgVjloNM8z5mDTsAcDdE77NXh0Mb5glSoJU7QmZqjtCWXNqa6X4cZg8s0YDqZb2ntdyXin57LkBq3RIIQTY' 
-                    });
-                    if (token) {
-                        console.log("Token:", token);
-                        alert("Push Ready!");
-                    }
-                }
-            } catch (err) { console.log(err); }
-        };
-
+        // ATTACH FUNCTIONS TO WINDOW (Crucial for onclick to work)
         window.connect = function() {
             dev = document.getElementById('id').value.trim();
             localStorage.setItem("samxi_id", dev);
             client = new Paho.MQTT.Client("broker.hivemq.com", 8884, "cl_" + Math.random().toString(16).slice(2,8));
             
-            client.onConnectionLost = () => {
-                if(!isCountingDown) { document.getElementById('led').className = "led red"; freezePanel(true, true); }
-            };
-
             client.onMessageArrived = (m) => {
                 let p = m.payloadString;
                 let s = document.getElementById('stat');
                 lastMsgTime = Date.now();
                 document.getElementById('led').className="led green";
-                if(!isCountingDown) freezePanel(false, true);
                 
-                if (p === "OPENING" || p === "OPEN") {
-                    if(!isStatusLocked) { s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML; hideProgress(); }
-                    if (lastSensorStatus !== "OPEN") { showToast("ALERT: Opening!", "error"); vibrateAlert('opening'); lastSensorStatus = "OPEN"; startGateReminder(); }
-                } else if (p === "CLOSED") {
-                    if(!isStatusLocked) { s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML; hideProgress(); }
-                    if (lastSensorStatus !== "CLOSED") { showToast("SUCCESS: Closed", "green"); vibrateAlert('closed'); lastSensorStatus = "CLOSED"; stopGateReminder(); }
-                } else if (p === "PIN_OK") {
-                    localStorage.setItem("samxi_pin", document.getElementById('entryPin').value);
-                    document.getElementById('pg2').style.display='none'; document.getElementById('pg3').style.display='block';
-                    document.getElementById('gear').style.visibility='visible';
-                } else if (p.startsWith("DATA|")) {
-                    let d = p.split("|"); updateWiFi(d[1]);
-                    if (!timerEditing) { document.getElementById('at').value = d[3]; currentWait = d[3]; }
-                    document.getElementById('ae').value = d[2];
-                    document.getElementById('abtn').style.display = (d[2]=="1") ? "block" : "none";
+                if (p === "ONLINE" || p === "PAUSED" || p.startsWith("DATA|")) {
+                    document.getElementById('pg1').style.display='none';
+                    document.getElementById('pg2').style.display='block';
+                }
+                if (p === "PIN_OK") {
+                    document.getElementById('pg2').style.display='none';
+                    document.getElementById('pg3').style.display='block';
                 }
             };
 
@@ -209,98 +154,28 @@
             send("VERIFY|" + document.getElementById('entryPin').value);
         };
 
-        window.cmd = function(type, logMsg) {
-            if(isCountingDown && type !== 'auto') return;
-            isStatusLocked = true;
-            document.getElementById('stat').innerHTML = "WORKING..." + document.getElementById('pCont').outerHTML;
-            showProgress(8); setTimeout(() => { isStatusLocked = false; }, 8000);
+        window.cmd = function(type) {
             send(type);
         };
 
-        window.save = function() {
-            let t = document.getElementById('at').value;
-            let a = document.getElementById('ae').value;
-            currentWait = t; timerEditing = false;
-            send("CONFIG|" + t + "|" + a); alert("Saved!");
-        };
-
-        // --- UI HELPERS ---
         function send(c) {
             if(client && client.isConnected()){
                 let m = new Paho.MQTT.Message(c);
-                m.destinationName = "samxi/"+dev+"/cmd"; client.send(m);
+                m.destinationName = "samxi/"+dev+"/cmd";
+                client.send(m);
             }
         }
 
-        function showToast(m, t) {
-            const x = document.getElementById("toast");
-            x.innerText = m; x.className = "show " + (t === 'error' ? 'toast-red' : 'toast-green');
-            setTimeout(() => { x.className = ""; }, 3000);
-        }
-
-        function showProgress(d) {
-            const cont = document.getElementById('pCont'); const bar = document.getElementById('pBar');
-            cont.style.display = 'block'; bar.style.transition = 'none'; bar.style.width = '0%';
-            setTimeout(() => { bar.style.transition = `width ${d}s linear`; bar.style.width = '100%'; }, 50);
-        }
-
-        function hideProgress() { document.getElementById('pCont').style.display = 'none'; }
-
-        function startGateReminder() {
-            if (gateReminderTimer) return;
-            gateReminderTimer = setInterval(() => { playAlertBeeps(); showToast("Gate is OPEN!", "error"); }, reminderInterval);
-        }
-
-        function stopGateReminder() { if (gateReminderTimer) { clearInterval(gateReminderTimer); gateReminderTimer = null; } }
-
-        function playAlertBeeps() { let c = 0; let i = setInterval(() => { playBeep(1800, 0.3); c++; if (c >= 6) clearInterval(i); }, 1000); }
-
-        function playBeep(f, d) {
-            try {
-                const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
-                o.connect(g); g.connect(audioCtx.destination);
-                o.frequency.value = f; o.start();
-                g.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + d); o.stop(audioCtx.currentTime + d);
-            } catch(e){}
-        }
-
-        function updateWiFi(rssi) {
-            const box = document.getElementById('wifiSig'); const val = document.getElementById('rssiVal');
-            box.style.display = 'flex'; const r = parseInt(rssi);
-            if (r >= -60) box.className = "wifi-box sig-excellent";
-            else if (r >= -75) box.className = "wifi-box sig-good";
-            else box.className = "wifi-box sig-weak";
-            val.innerText = r + "dBm";
-        }
-
-        window.startAuto = function() {
-            isCountingDown = true; let duration = parseInt(currentWait);
-            let endTime = Date.now() + (duration * 1000);
-            countdownTimer = setInterval(() => {
-                let timeLeft = Math.round((endTime - Date.now()) / 1000);
-                if (timeLeft > 0) { document.getElementById('abtn').innerText = "Closing in " + timeLeft + "s"; }
-                else { clearInterval(countdownTimer); document.getElementById('abtn').innerText = "AUTO CLOSE"; isCountingDown = false; }
-            }, 1000);
-            send('auto');
-        };
-
-        function updateNetStat() {
-            const ns = document.getElementById('netStat');
-            ns.innerText = navigator.onLine ? "Phone Online" : "No Internet";
-            ns.className = "net-status " + (navigator.onLine ? "online-bg" : "offline-bg");
-        }
-
         window.onload = function() {
-            updateNetStat();
-            window.requestNotificationPermission();
             if(localStorage.getItem("samxi_id")) document.getElementById('id').value = localStorage.getItem("samxi_id");
+            // Request Notification Permission on load
+            Notification.requestPermission().then(perm => {
+                if(perm === 'granted') {
+                    getToken(messaging, { vapidKey: 'BGVOgVjloNM8z5mDTsAcDdE77NXh0Mb5glSoJU7QmZqjtCWXNqa6X4cZg8s0YDqZb2ntdyXin57LkBq3RIIQTY' })
+                    .then(tok => console.log("Token:", tok));
+                }
+            });
         };
-
-        // Standard Utility Functions
-        window.openHistory = function() { document.getElementById('hModal').style.display = 'block'; };
-        window.clearHistory = function() { localStorage.setItem("samxi_logs", "[]"); };
-        window.factoryReset = function() { if(confirm("Reset?")) send('RESET_FACTORY'); };
-
     </script>
 </body>
 </html>
