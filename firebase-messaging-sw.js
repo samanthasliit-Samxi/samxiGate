@@ -18,11 +18,36 @@ messaging.onBackgroundMessage((payload) => {
     });
 });
 
-// Cache for offline support
+// --- CACHE MANAGEMENT ---
+const CACHE_NAME = 'samxi-v6'; // UPDATED TO V6
+
 self.addEventListener('install', (e) => {
-    e.waitUntil(caches.open('samxi-v5').then(c => c.addAll(['index.html', 'manifest.json'])));
+    // Force the new service worker to take over immediately
+    self.skipWaiting();
+    e.waitUntil(
+        caches.open(CACHE_NAME).then(c => {
+            console.log('Installing New Cache: ' + CACHE_NAME);
+            return c.addAll(['index.html', 'manifest.json']);
+        })
+    );
+});
+
+// DELETE OLD CACHES (Removes v5, v4, etc. to save space)
+self.addEventListener('activate', (e) => {
+    e.waitUntil(
+        caches.keys().then((keyList) => {
+            return Promise.all(keyList.map((key) => {
+                if (key !== CACHE_NAME) {
+                    console.log('Removing old cache: ' + key);
+                    return caches.delete(key);
+                }
+            }));
+        })
+    );
 });
 
 self.addEventListener('fetch', (event) => {
-    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
+    event.respondWith(
+        fetch(event.request).catch(() => caches.match(event.request))
+    );
 });
