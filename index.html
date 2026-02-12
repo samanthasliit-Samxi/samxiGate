@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <title>SAMXI SMART DOOR PRO</title>
@@ -9,23 +9,27 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-window.OneSignalDeferred = window.OneSignalDeferred || [];
-OneSignalDeferred.push(async function(OneSignal) {
-  await OneSignal.init({
-    appId: "a71c864f-2514-4798-b919-4511e0801b5a",
-    // These two lines are MANDATORY for the /samxiGate/ folder:
-    serviceWorkerPath: "samxiGate/OneSignalSDKWorker.js",
-    serviceWorkerParam: { scope: "/samxiGate/" },
-    // --------------------------------------------------------
-    safari_web_id: "web.onesignal.auto.2a0b8f88-f61f-4cbf-954f-aff96911a546",
-    notifyButton: {
-      enable: true,
-    },
-  });
-});
     
-</script>
+    <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "a71c864f-2514-4798-b919-4511e0801b5a",
+        // Mandatory for your /samxiGate/ folder:
+        serviceWorkerPath: "samxiGate/OneSignalSDKWorker.js",
+        serviceWorkerParam: { scope: "/samxiGate/" },
+        safari_web_id: "web.onesignal.auto.2a0b8f88-f61f-4cbf-954f-aff96911a546",
+        notifyButton: {
+          enable: true,
+        },
+      });
+      
+      // Commercial Sync: If an ID exists in storage, ensure OneSignal knows it immediately on boot
+      let savedID = localStorage.getItem("samxi_id");
+      if(savedID) {
+          OneSignal.sendTag("device_id", savedID);
+      }
+    });
     </script>
 
     <style>
@@ -107,7 +111,6 @@ OneSignalDeferred.push(async function(OneSignal) {
             <button id="hbtn" class="btn hist-btn" onclick="openHistory()">VIEW ACTIVITY HISTORY</button>
         </div>
     </div>
-
     <div id="modal">
         <div class="modal-content">
             <h2 style="color:#2ecc71; margin-top:0;">SETTINGS</h2>
@@ -127,7 +130,6 @@ OneSignalDeferred.push(async function(OneSignal) {
             <button onclick="document.getElementById('modal').style.display='none'" class="exit-link">EXIT</button>
         </div>
     </div>
-
     <div id="hModal">
         <div class="modal-content">
             <h2 style="color:#2ecc71; margin-top:0;">ACTIVITY HISTORY</h2>
@@ -138,17 +140,15 @@ OneSignalDeferred.push(async function(OneSignal) {
     </div>
     <div id="toast"></div>
 
-    <script> 
+    <script>
         let wakeLock = null;
         let client, dev, currentWait = 10, countdownTimer, lastMsgTime = Date.now();
         let timerEditing = false;
         let isCountingDown = false;
         let isStatusLocked = false; 
         let lastSensorStatus = "";
-        
         let gateReminderTimer = null;
         let reminderInterval = 5 * 60 * 1000; 
-
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         async function requestWakeLock() {
@@ -250,24 +250,18 @@ OneSignalDeferred.push(async function(OneSignal) {
         window.addEventListener('online', updateNetStat);
         window.addEventListener('offline', updateNetStat);
 
-        // ... existing code ...
-window.onload = function() {
-    updateNetStat();
-    
-    // REVISED TAG LOGIC
-    let savedID = localStorage.getItem("samxi_id");
-    if(savedID) {
-        document.getElementById('id').value = savedID;
-        // This ensures OneSignal always knows which door ID this phone belongs to
-        OneSignal.push(function() {
-            OneSignal.sendTag("device_id", savedID);
-            console.log("OneSignal Tag Sync: " + savedID);
-        });
-    }
-    
-    if(localStorage.getItem("samxi_pin")) document.getElementById('entryPin').value = localStorage.getItem("samxi_pin");
-};
-// ... rest of the code ...
+        window.onload = function() {
+            updateNetStat();
+            let savedID = localStorage.getItem("samxi_id");
+            if(savedID) {
+                document.getElementById('id').value = savedID;
+                // --- GOLDEN ONE-SIGNAL SYNC ---
+                OneSignalDeferred.push(function(OneSignal) {
+                    OneSignal.sendTag("device_id", savedID);
+                });
+            }
+            if(localStorage.getItem("samxi_pin")) document.getElementById('entryPin').value = localStorage.getItem("samxi_pin");
+        };
 
         function playBeep(f, d) {
             try {
@@ -385,8 +379,8 @@ window.onload = function() {
             dev = document.getElementById('id').value.trim();
             localStorage.setItem("samxi_id", dev);
             
-            // Link OneSignal to this specific Device ID (For Commercial Individual User Alerts)
-            OneSignal.push(function() {
+            // --- GOLDEN ONE-SIGNAL TAG SYNC ---
+            OneSignalDeferred.push(function(OneSignal) {
                 OneSignal.sendTag("device_id", dev);
             });
 
