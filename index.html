@@ -23,6 +23,7 @@
       
       let savedID = localStorage.getItem("samxi_id");
       if(savedID) {
+          // Commercial Sync on Boot
           OneSignal.login(savedID);
           OneSignal.sendTag("device_id", savedID);
       }
@@ -99,7 +100,7 @@
             <button onclick="verifyPin()" class="btn down" style="color:black; background:#f1c40f;">UNLOCK DOOR</button>
         </div>
         <div id="pg3" style="display:none;">
-            <div class="status-box" id="stat"> READY <div class="progress-container" id="pCont"><div class="progress-bar" id="pBar"></div></div> </div>
+            <div class="status-box" id="stat"> CHECKING... <div class="progress-container" id="pCont"><div class="progress-bar" id="pBar"></div></div> </div>
             <div id="lastUpdate" style="font-size: 0.8rem; color: #888; margin-top: -10px; margin-bottom: 10px;">Last update: --:--</div>
             <button id="m1" class="btn up" onclick="cmd('up', 'OPEN GATE')">OPEN DOOR</button>
             <button id="m2" class="btn stop" onclick="cmd('stop', 'STOP GATE')">STOP</button>
@@ -221,7 +222,7 @@
             
             setTimeout(() => { 
                 isStatusLocked = false; 
-                // CORRECTION: Reset text to actual sensor state after bar finishes
+                // Fix: Reset to actual sensor state after bar finishes
                 if(lastSensorStatus === "OPEN") s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML;
                 else if(lastSensorStatus === "CLOSED") s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML;
                 else s.innerHTML = "READY" + document.getElementById('pCont').outerHTML;
@@ -359,6 +360,7 @@
             dev = document.getElementById('id').value.trim();
             localStorage.setItem("samxi_id", dev);
             
+            // Sync Tag without blocking
             try {
                 OneSignalDeferred.push(function(OneSignal) { 
                     OneSignal.login(dev);
@@ -402,6 +404,8 @@
                     document.getElementById('pg2').style.display='none';
                     document.getElementById('pg3').style.display='block';
                     document.getElementById('gear').style.visibility='visible';
+                    // Fix: Initial Status Sync immediately on PIN success
+                    send("GET_STATE"); 
                 } else if (p === "WRONG_PIN") {
                     alert("Wrong PIN!");
                 } else if (p === "PIN_CHANGED") {
@@ -420,7 +424,11 @@
                         if (!timerEditing) { document.getElementById('at').value = d[3]; currentWait = d[3]; }
                         document.getElementById('ae').value = d[2];
                         document.getElementById('abtn').style.display = (d[2]=="1") ? "block" : "none";
-                        if(s.innerText.includes("OFFLINE") && !isStatusLocked) s.innerHTML = "CONNECTED" + document.getElementById('pCont').outerHTML;
+                        // Fix: If we just logged in and got data, update the status text to match sensor
+                        if(s.innerText.includes("CHECKING") && !isStatusLocked) {
+                           if(lastSensorStatus === "OPEN") s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML;
+                           else if(lastSensorStatus === "CLOSED") s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML;
+                        }
                     } else if (p === "START_AUTO") { startAuto(); } 
                     else if (p === "PAUSED") {
                         if(!isStatusLocked) { s.innerHTML = "STOPPED" + document.getElementById('pCont').outerHTML; hideProgress(); }
