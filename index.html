@@ -6,25 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
-    
+   
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    
+   
     <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(async function(OneSignal) {
       await OneSignal.init({
         appId: "a71c864f-2514-4798-b919-4511e0801b5a",
-        // Mandatory for your /samxiGate/ folder:
         serviceWorkerPath: "samxiGate/OneSignalSDKWorker.js",
         serviceWorkerParam: { scope: "/samxiGate/" },
         safari_web_id: "web.onesignal.auto.2a0b8f88-f61f-4cbf-954f-aff96911a546",
-        notifyButton: {
-          enable: true,
-        },
+        notifyButton: { enable: true },
       });
-      
-      // Commercial Sync: If an ID exists in storage, ensure OneSignal knows it immediately on boot
+     
       let savedID = localStorage.getItem("samxi_id");
       if(savedID) {
           OneSignal.sendTag("device_id", savedID);
@@ -139,16 +135,12 @@
         </div>
     </div>
     <div id="toast"></div>
-
     <script>
         let wakeLock = null;
         let client, dev, currentWait = 10, countdownTimer, lastMsgTime = Date.now();
-        let timerEditing = false;
-        let isCountingDown = false;
-        let isStatusLocked = false; 
+        let timerEditing = false, isCountingDown = false, isStatusLocked = false;
         let lastSensorStatus = "";
-        let gateReminderTimer = null;
-        let reminderInterval = 5 * 60 * 1000; 
+        let gateReminderTimer = null, reminderInterval = 5 * 60 * 1000;
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         async function requestWakeLock() {
@@ -188,10 +180,7 @@
         }
 
         function stopGateReminder() {
-            if (gateReminderTimer) {
-                clearInterval(gateReminderTimer);
-                gateReminderTimer = null;
-            }
+            if (gateReminderTimer) { clearInterval(gateReminderTimer); gateReminderTimer = null; }
             document.getElementById('stat').classList.remove("alert-active");
         }
 
@@ -215,10 +204,7 @@
             document.getElementById('hModal').style.display = 'block';
         }
 
-        function clearHistory() {
-            localStorage.setItem("samxi_logs", "[]");
-            openHistory();
-        }
+        function clearHistory() { localStorage.setItem("samxi_logs", "[]"); openHistory(); }
 
         function cmd(type, logMsg) {
             if(isCountingDown && type !== 'auto') return;
@@ -229,7 +215,7 @@
             isStatusLocked = true;
             const s = document.getElementById('stat');
             s.innerHTML = displayTxt + document.getElementById('pCont').outerHTML;
-            showProgress(8); 
+            showProgress(8);
             setTimeout(() => { isStatusLocked = false; }, 8000);
             addLog(logMsg);
             send(type);
@@ -255,10 +241,10 @@
             let savedID = localStorage.getItem("samxi_id");
             if(savedID) {
                 document.getElementById('id').value = savedID;
-                // --- GOLDEN ONE-SIGNAL SYNC ---
-                OneSignalDeferred.push(function(OneSignal) {
-                    OneSignal.sendTag("device_id", savedID);
-                });
+                // Background Tag Sync
+                try {
+                   OneSignalDeferred.push(function(OneSignal) { OneSignal.sendTag("device_id", savedID); });
+                } catch(e) {}
             }
             if(localStorage.getItem("samxi_pin")) document.getElementById('entryPin').value = localStorage.getItem("samxi_pin");
         };
@@ -267,10 +253,8 @@
             try {
                 const o = audioCtx.createOscillator();
                 const g = audioCtx.createGain();
-                o.connect(g);
-                g.connect(audioCtx.destination);
-                o.frequency.value = f;
-                o.start();
+                o.connect(g); g.connect(audioCtx.destination);
+                o.frequency.value = f; o.start();
                 g.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + d);
                 o.stop(audioCtx.currentTime + d);
             } catch(e){}
@@ -279,8 +263,7 @@
         function playAlertBeeps() {
             let count = 0;
             let interval = setInterval(() => {
-                playBeep(1800, 0.3);
-                count++;
+                playBeep(1800, 0.3); count++;
                 if (count >= 6) clearInterval(interval);
             }, 1000);
         }
@@ -293,10 +276,7 @@
                     else btn.classList.remove('timer-lock');
                     return;
                 }
-                if (btn.id === 'abtn') {
-                    btn.classList.remove('timer-lock');
-                    return;
-                }
+                if (btn.id === 'abtn') { btn.classList.remove('timer-lock'); return; }
                 if(status) btn.classList.add('timer-lock');
                 else btn.classList.remove('timer-lock');
             });
@@ -305,10 +285,7 @@
         setInterval(() => {
             if (document.getElementById('pg3').style.display === 'block') {
                 const timeDiff = Date.now() - lastMsgTime;
-                if (isCountingDown) {
-                    document.getElementById('led').className = "led green";
-                    return;
-                }
+                if (isCountingDown) { document.getElementById('led').className = "led green"; return; }
                 if (timeDiff > 20000 || !navigator.onLine) {
                     document.getElementById('led').className = "led red";
                     if(!isStatusLocked) document.getElementById('stat').innerHTML = "OFFLINE" + document.getElementById('pCont').outerHTML;
@@ -321,18 +298,11 @@
         function showProgress(duration) {
             const cont = document.getElementById('pCont');
             const bar = document.getElementById('pBar');
-            cont.style.display = 'block';
-            bar.style.transition = 'none';
-            bar.style.width = '0%';
-            setTimeout(() => {
-                bar.style.transition = `width ${duration}s linear`;
-                bar.style.width = '100%';
-            }, 50);
+            cont.style.display = 'block'; bar.style.transition = 'none'; bar.style.width = '0%';
+            setTimeout(() => { bar.style.transition = `width ${duration}s linear`; bar.style.width = '100%'; }, 50);
         }
 
-        function hideProgress() {
-            document.getElementById('pCont').style.display = 'none';
-        }
+        function hideProgress() { document.getElementById('pCont').style.display = 'none'; }
 
         function updateWiFi(rssi) {
             const box = document.getElementById('wifiSig');
@@ -340,10 +310,10 @@
             box.style.display = 'flex';
             const r = parseInt(rssi);
             let statusText = "";
-            if (r >= -50) { statusText = "EXTREME"; box.className = "wifi-box sig-excellent"; } 
-            else if (r >= -60) { statusText = "BEST"; box.className = "wifi-box sig-excellent"; } 
-            else if (r >= -70) { statusText = "GOOD"; box.className = "wifi-box sig-good"; } 
-            else if (r >= -80) { statusText = "MODERATE"; box.className = "wifi-box sig-good"; } 
+            if (r >= -50) { statusText = "EXTREME"; box.className = "wifi-box sig-excellent"; }
+            else if (r >= -60) { statusText = "BEST"; box.className = "wifi-box sig-excellent"; }
+            else if (r >= -70) { statusText = "GOOD"; box.className = "wifi-box sig-good"; }
+            else if (r >= -80) { statusText = "MODERATE"; box.className = "wifi-box sig-good"; }
             else { statusText = "WEAK"; box.className = "wifi-box sig-weak"; }
             val.innerText = statusText + " (" + r + "dBm)";
         }
@@ -367,10 +337,8 @@
                     if(timeLeft <= 3) playBeep(1200, 0.2);
                 } else {
                     clearInterval(countdownTimer);
-                    abtn.innerText = "AUTO CLOSE";
-                    isCountingDown = false;
-                    playBeep(440, 0.5);
-                    freezePanel(false, true);
+                    abtn.innerText = "AUTO CLOSE"; isCountingDown = false;
+                    playBeep(440, 0.5); freezePanel(false, true);
                 }
             }, 1000);
         }
@@ -378,18 +346,15 @@
         function connect() {
             dev = document.getElementById('id').value.trim();
             localStorage.setItem("samxi_id", dev);
-            
-            // --- GOLDEN ONE-SIGNAL TAG SYNC ---
-            OneSignalDeferred.push(function(OneSignal) {
-                OneSignal.sendTag("device_id", dev);
-            });
+           
+            // Sync Tag without blocking
+            try {
+                OneSignalDeferred.push(function(OneSignal) { OneSignal.sendTag("device_id", dev); });
+            } catch(e) {}
 
             client = new Paho.MQTT.Client("broker.hivemq.com", 8884, "cl_" + Math.random().toString(16).slice(2,8));
             client.onConnectionLost = (e) => {
-                if(!isCountingDown) {
-                    document.getElementById('led').className = "led red";
-                    freezePanel(true, true);
-                }
+                if(!isCountingDown) { document.getElementById('led').className = "led red"; freezePanel(true, true); }
             };
             client.onMessageArrived = (m) => {
                 let p = m.payloadString;
@@ -399,37 +364,24 @@
                 if(!isCountingDown) freezePanel(false, true);
                 const now = new Date();
                 document.getElementById('lastUpdate').innerText = "Last sync: " + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                
+               
                 if (p === "OPENING" || p === "OPEN") {
-                    if(!isStatusLocked) {
-                        s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML;
-                        hideProgress();
-                    }
+                    if(!isStatusLocked) { s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML; hideProgress(); }
                     if (lastSensorStatus !== "OPEN") {
-                        showToast("ALERT: Door is Opening!", "error");
-                        vibrateAlert('opening');
-                        addLog("Detected : GateOpened");
-                        lastSensorStatus = "OPEN";
-                        startGateReminder();
+                        showToast("ALERT: Door is Opening!", "error"); vibrateAlert('opening');
+                        addLog("Detected : GateOpened"); lastSensorStatus = "OPEN"; startGateReminder();
                     }
                 } else if (p === "CLOSED") {
-                    if(!isStatusLocked) {
-                        s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML;
-                        hideProgress();
-                    }
+                    if(!isStatusLocked) { s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML; hideProgress(); }
                     if (lastSensorStatus !== "CLOSED") {
-                        showToast("SUCCESS: Door is Closed", "green");
-                        vibrateAlert('closed');
-                        addLog("Detected : GateClosed");
-                        lastSensorStatus = "CLOSED";
-                        stopGateReminder();
+                        showToast("SUCCESS: Door is Closed", "green"); vibrateAlert('closed');
+                        addLog("Detected : GateClosed"); lastSensorStatus = "CLOSED"; stopGateReminder();
                     }
                 }
                 if (p === "OFFLINE" && !isCountingDown) {
                     document.getElementById('led').className = "led red";
                     if(!isStatusLocked) s.innerHTML = "OFFLINE" + document.getElementById('pCont').outerHTML;
-                    freezePanel(true, true);
-                    return;
+                    freezePanel(true, true); return;
                 }
                 if (p === "PIN_OK") {
                     localStorage.setItem("samxi_pin", document.getElementById('entryPin').value);
@@ -439,48 +391,35 @@
                 } else if (p === "WRONG_PIN") {
                     alert("Wrong PIN!");
                 } else if (p === "PIN_CHANGED") {
-                    alert("PIN Updated Successfully!");
-                    location.reload();
+                    alert("PIN Updated Successfully!"); location.reload();
                 } else if (p === "RESET_SUCCESS") {
-                    alert("SYSTEM RECOVERY: Factory Reset Complete.");
-                    location.reload();
+                    alert("SYSTEM RECOVERY: Factory Reset Complete."); location.reload();
                 } else if (p === "ALERT|STILL_OPEN") {
                     if(!isStatusLocked) s.innerHTML = "STILL OPEN!" + document.getElementById('pCont').outerHTML;
-                    s.classList.add("alert-active");
-                    playAlertBeeps();
+                    s.classList.add("alert-active"); playAlertBeeps();
                 } else if (p === "ONLINE" || p === "PAUSED" || p.startsWith("DATA|") || p.includes("now")) {
                     document.getElementById('pg1').style.display='none';
                     if(document.getElementById('pg3').style.display !== 'block') document.getElementById('pg2').style.display='block';
                     if(p.startsWith("DATA|")) {
                         let d = p.split("|");
                         updateWiFi(d[1]);
-                        if (!timerEditing) {
-                            document.getElementById('at').value = d[3];
-                            currentWait = d[3];
-                        }
+                        if (!timerEditing) { document.getElementById('at').value = d[3]; currentWait = d[3]; }
                         document.getElementById('ae').value = d[2];
                         document.getElementById('abtn').style.display = (d[2]=="1") ? "block" : "none";
                         if(s.innerText.includes("OFFLINE") && !isStatusLocked) s.innerHTML = "CONNECTED" + document.getElementById('pCont').outerHTML;
-                    } else if (p === "START_AUTO") {
-                        startAuto();
-                    } else if (p === "PAUSED") {
-                        if(!isStatusLocked) {
-                            s.innerHTML = "STOPPED" + document.getElementById('pCont').outerHTML;
-                            hideProgress();
-                        }
+                    } else if (p === "START_AUTO") { startAuto(); }
+                    else if (p === "PAUSED") {
+                        if(!isStatusLocked) { s.innerHTML = "STOPPED" + document.getElementById('pCont').outerHTML; hideProgress(); }
                     }
                 }
             };
             client.connect({
-                useSSL:true, 
-                keepAliveInterval: 10, 
-                timeout: 5, 
+                useSSL:true, keepAliveInterval: 10, timeout: 5,
                 onSuccess: () => {
                     client.subscribe("samxi/"+dev+"/state");
                     requestWakeLock();
                     const ns = document.getElementById('netStat');
-                    ns.innerText = "System Ready";
-                    ns.className = "net-status online-bg";
+                    ns.innerText = "System Ready"; ns.className = "net-status online-bg";
                     setTimeout(() => { ns.style.display = 'none'; }, 2000);
                 },
                 onFailure: () => { setTimeout(connect, 3000); }
@@ -502,15 +441,12 @@
         function save() {
             let timerVal = document.getElementById('at').value;
             let autoVal = document.getElementById('ae').value;
-            currentWait = timerVal;
-            timerEditing = false;
+            currentWait = timerVal; timerEditing = false;
             send("CONFIG|" + timerVal + "|" + autoVal);
             alert("Settings Saved!");
         }
 
-        function factoryReset() {
-            if(confirm("Factory Reset?")) send('RESET_FACTORY');
-        }
+        function factoryReset() { if(confirm("Factory Reset?")) send('RESET_FACTORY'); }
 
         function send(c) {
             if(client && client.isConnected()){
