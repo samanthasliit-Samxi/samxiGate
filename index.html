@@ -12,6 +12,7 @@
     
     <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
+    // Commercial Auto-Tag Logic: Fixed to wait for permission
     OneSignalDeferred.push(async function(OneSignal) {
       await OneSignal.init({
         appId: "a71c864f-2514-4798-b919-4511e0801b5a",
@@ -20,10 +21,20 @@
         safari_web_id: "web.onesignal.auto.2a0b8f88-f61f-4cbf-954f-aff96911a546",
         notifyButton: { enable: true },
       });
+
+      // Ensure tag is sent as soon as permission is granted or if already granted
+      OneSignal.Notifications.addEventListener("permissionChange", function(permission) {
+          if (permission) {
+              let savedID = localStorage.getItem("samxi_id");
+              if(savedID) {
+                  OneSignal.login(savedID);
+                  OneSignal.sendTag("device_id", savedID);
+              }
+          }
+      });
       
       let savedID = localStorage.getItem("samxi_id");
-      if(savedID) {
-          // Commercial Sync on Boot
+      if(savedID && OneSignal.Notifications.permission) {
           OneSignal.login(savedID);
           OneSignal.sendTag("device_id", savedID);
       }
@@ -100,7 +111,7 @@
             <button onclick="verifyPin()" class="btn down" style="color:black; background:#f1c40f;">UNLOCK DOOR</button>
         </div>
         <div id="pg3" style="display:none;">
-            <div class="status-box" id="stat"> CHECKING... <div class="progress-container" id="pCont"><div class="progress-bar" id="pBar"></div></div> </div>
+            <div class="status-box" id="stat"> CHECKING SENSOR... <div class="progress-container" id="pCont"><div class="progress-bar" id="pBar"></div></div> </div>
             <div id="lastUpdate" style="font-size: 0.8rem; color: #888; margin-top: -10px; margin-bottom: 10px;">Last update: --:--</div>
             <button id="m1" class="btn up" onclick="cmd('up', 'OPEN GATE')">OPEN DOOR</button>
             <button id="m2" class="btn stop" onclick="cmd('stop', 'STOP GATE')">STOP</button>
@@ -141,7 +152,7 @@
         let wakeLock = null;
         let client, dev, currentWait = 10, countdownTimer, lastMsgTime = Date.now();
         let timerEditing = false, isCountingDown = false, isStatusLocked = false;
-        let lastSensorStatus = "";
+        let lastSensorStatus = "OFFLINE";
         let gateReminderTimer = null, reminderInterval = 5 * 60 * 1000;
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -222,10 +233,9 @@
             
             setTimeout(() => { 
                 isStatusLocked = false; 
-                // Fix: Reset to actual sensor state after bar finishes
                 if(lastSensorStatus === "OPEN") s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML;
                 else if(lastSensorStatus === "CLOSED") s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML;
-                else s.innerHTML = "READY" + document.getElementById('pCont').outerHTML;
+                else s.innerHTML = "SYSTEM READY" + document.getElementById('pCont').outerHTML;
             }, 8000);
 
             addLog(logMsg);
@@ -252,12 +262,6 @@
             let savedID = localStorage.getItem("samxi_id");
             if(savedID) {
                 document.getElementById('id').value = savedID;
-                try {
-                   OneSignalDeferred.push(function(OneSignal) { 
-                       OneSignal.login(savedID);
-                       OneSignal.sendTag("device_id", savedID); 
-                   });
-                } catch(e) {}
             }
             if(localStorage.getItem("samxi_pin")) document.getElementById('entryPin').value = localStorage.getItem("samxi_pin");
         };
@@ -360,7 +364,7 @@
             dev = document.getElementById('id').value.trim();
             localStorage.setItem("samxi_id", dev);
             
-            // Sync Tag without blocking
+            // Commercial Handshake Sync
             try {
                 OneSignalDeferred.push(function(OneSignal) { 
                     OneSignal.login(dev);
@@ -382,16 +386,18 @@
                 document.getElementById('lastUpdate').innerText = "Last sync: " + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 
                 if (p === "OPENING" || p === "OPEN") {
+                    lastSensorStatus = "OPEN";
                     if(!isStatusLocked) { s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML; hideProgress(); }
                     if (lastSensorStatus !== "OPEN") {
                         showToast("ALERT: Door is Opening!", "error"); vibrateAlert('opening');
-                        addLog("Detected : GateOpened"); lastSensorStatus = "OPEN"; startGateReminder();
+                        addLog("Detected : GateOpened"); startGateReminder();
                     }
                 } else if (p === "CLOSED") {
+                    lastSensorStatus = "CLOSED";
                     if(!isStatusLocked) { s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML; hideProgress(); }
                     if (lastSensorStatus !== "CLOSED") {
                         showToast("SUCCESS: Door is Closed", "green"); vibrateAlert('closed');
-                        addLog("Detected : GateClosed"); lastSensorStatus = "CLOSED"; stopGateReminder();
+                        addLog("Detected : GateClosed"); stopGateReminder();
                     }
                 }
                 if (p === "OFFLINE" && !isCountingDown) {
@@ -404,7 +410,7 @@
                     document.getElementById('pg2').style.display='none';
                     document.getElementById('pg3').style.display='block';
                     document.getElementById('gear').style.visibility='visible';
-                    // Fix: Initial Status Sync immediately on PIN success
+                    // Force Status Update on Login
                     send("GET_STATE"); 
                 } else if (p === "WRONG_PIN") {
                     alert("Wrong PIN!");
@@ -424,10 +430,10 @@
                         if (!timerEditing) { document.getElementById('at').value = d[3]; currentWait = d[3]; }
                         document.getElementById('ae').value = d[2];
                         document.getElementById('abtn').style.display = (d[2]=="1") ? "block" : "none";
-                        // Fix: If we just logged in and got data, update the status text to match sensor
+                        // Auto-Correction for Initial Load Status
                         if(s.innerText.includes("CHECKING") && !isStatusLocked) {
-                           if(lastSensorStatus === "OPEN") s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML;
-                           else if(lastSensorStatus === "CLOSED") s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML;
+                           if(p.includes("OPEN")) s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML;
+                           else if(p.includes("CLOSED")) s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML;
                         }
                     } else if (p === "START_AUTO") { startAuto(); } 
                     else if (p === "PAUSED") {
@@ -440,6 +446,8 @@
                 onSuccess: () => {
                     client.subscribe("samxi/"+dev+"/state");
                     requestWakeLock();
+                    // Request actual sensor state immediately upon MQTT connection
+                    send("GET_STATE");
                     const ns = document.getElementById('netStat');
                     ns.innerText = "System Ready"; ns.className = "net-status online-bg";
                     setTimeout(() => { ns.style.display = 'none'; }, 2000);
