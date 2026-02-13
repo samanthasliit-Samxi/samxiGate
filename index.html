@@ -23,7 +23,6 @@
       
       let savedID = localStorage.getItem("samxi_id");
       if(savedID) {
-          // Commercial Auto-Sync on Boot
           OneSignal.login(savedID);
           OneSignal.sendTag("device_id", savedID);
       }
@@ -214,6 +213,7 @@
             if(type === 'up') displayTxt = "OPENING...";
             if(type === 'down') displayTxt = "CLOSING...";
             if(type === 'stop') displayTxt = "STOPPED";
+            
             isStatusLocked = true;
             const s = document.getElementById('stat');
             s.innerHTML = displayTxt + document.getElementById('pCont').outerHTML;
@@ -221,9 +221,10 @@
             
             setTimeout(() => { 
                 isStatusLocked = false; 
-                // After 8s, update the status to match the physical sensor state immediately
+                // CORRECTION: Reset text to actual sensor state after bar finishes
                 if(lastSensorStatus === "OPEN") s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML;
                 else if(lastSensorStatus === "CLOSED") s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML;
+                else s.innerHTML = "READY" + document.getElementById('pCont').outerHTML;
             }, 8000);
 
             addLog(logMsg);
@@ -358,7 +359,6 @@
             dev = document.getElementById('id').value.trim();
             localStorage.setItem("samxi_id", dev);
             
-            // Sync Tag without blocking
             try {
                 OneSignalDeferred.push(function(OneSignal) { 
                     OneSignal.login(dev);
