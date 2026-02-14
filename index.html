@@ -21,18 +21,9 @@
         notifyButton: { enable: true },
       });
 
-      OneSignal.Notifications.addEventListener("permissionChange", function(permission) {
-          if (permission) {
-              let savedID = localStorage.getItem("samxi_id");
-              if(savedID) {
-                  OneSignal.login(savedID);
-                  OneSignal.sendTag("device_id", savedID);
-              }
-          }
-      });
-      
+      // Commercial Auto-Sync for returning users
       let savedID = localStorage.getItem("samxi_id");
-      if(savedID && OneSignal.Notifications.permission) {
+      if(savedID) {
           OneSignal.login(savedID);
           OneSignal.sendTag("device_id", savedID);
       }
@@ -369,10 +360,12 @@
             dev = document.getElementById('id').value.trim();
             localStorage.setItem("samxi_id", dev);
             
+            // --- COMMERCIAL AUTO-SYNC HANDSHAKE ---
             try {
                 OneSignalDeferred.push(function(OneSignal) { 
                     OneSignal.login(dev);
                     OneSignal.sendTag("device_id", dev); 
+                    console.log("Auto-Tagging Success: " + dev);
                 });
             } catch(e) {}
 
@@ -391,30 +384,24 @@
                 
                 if (p === "OPENING" || p === "OPEN") {
                     if (lastSensorStatus !== "OPEN") {
-                        showToast("ALERT: Door is Opening!", "error"); 
-                        vibrateAlert('opening');
-                        addLog("Detected : GateOpened"); 
-                        startGateReminder();
-                        alert("SAMXI ALERT: Gate is Opening!"); // Browser Alert
+                        showToast("ALERT: Door is Opening!", "error"); vibrateAlert('opening');
+                        addLog("Detected : GateOpened"); startGateReminder();
                     }
                     lastSensorStatus = "OPEN";
                     if(!isStatusLocked) { 
                         s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML; 
-                        s.style.backgroundColor = "#3a1e1e"; // Red theme for open
+                        s.style.backgroundColor = "#3a1e1e";
                         hideProgress(); 
                     }
                 } else if (p === "CLOSED") {
                     if (lastSensorStatus !== "CLOSED") {
-                        showToast("SUCCESS: Door is Closed", "green"); 
-                        vibrateAlert('closed');
-                        addLog("Detected : GateClosed"); 
-                        stopGateReminder();
-                        alert("SAMXI INFO: Gate is Closed."); // Browser Alert
+                        showToast("SUCCESS: Door is Closed", "green"); vibrateAlert('closed');
+                        addLog("Detected : GateClosed"); stopGateReminder();
                     }
                     lastSensorStatus = "CLOSED";
                     if(!isStatusLocked) { 
                         s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML; 
-                        s.style.backgroundColor = "#1e3a1e"; // Green theme for closed
+                        s.style.backgroundColor = "#1e3a1e";
                         hideProgress(); 
                     }
                 }
