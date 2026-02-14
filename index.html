@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2ecc71">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -118,6 +121,7 @@
             <button id="hbtn" class="btn hist-btn" onclick="openHistory()">VIEW ACTIVITY HISTORY</button>
         </div>
     </div>
+
     <div id="modal">
         <div class="modal-content">
             <h2 style="color:#2ecc71; margin-top:0;">SETTINGS</h2>
@@ -146,7 +150,9 @@
         </div>
     </div>
     <div id="toast"></div>
+
     <script>
+        /* ALL JAVASCRIPT LOGIC PRESERVED 100% AS PER YOUR REQUEST */
         let wakeLock = null;
         let client, dev, currentWait = 10, countdownTimer, lastMsgTime = Date.now();
         let timerEditing = false, isCountingDown = false, isStatusLocked = false;
@@ -391,30 +397,26 @@
                 
                 if (p === "OPENING" || p === "OPEN") {
                     if (lastSensorStatus !== "OPEN") {
-                        showToast("ALERT: Door is Opening!", "error"); 
-                        vibrateAlert('opening');
-                        addLog("Detected : GateOpened"); 
-                        startGateReminder();
-                        alert("SAMXI ALERT: Gate is Opening!"); // Browser Alert
+                        showToast("ALERT: Door is Opening!", "error"); vibrateAlert('opening');
+                        addLog("Detected : GateOpened"); startGateReminder();
+                        alert("SAMXI ALERT: Gate is Opening!");
                     }
                     lastSensorStatus = "OPEN";
                     if(!isStatusLocked) { 
                         s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML; 
-                        s.style.backgroundColor = "#3a1e1e"; // Red theme for open
+                        s.style.backgroundColor = "#3a1e1e";
                         hideProgress(); 
                     }
                 } else if (p === "CLOSED") {
                     if (lastSensorStatus !== "CLOSED") {
-                        showToast("SUCCESS: Door is Closed", "green"); 
-                        vibrateAlert('closed');
-                        addLog("Detected : GateClosed"); 
-                        stopGateReminder();
-                        alert("SAMXI INFO: Gate is Closed."); // Browser Alert
+                        showToast("SUCCESS: Door is Closed", "green"); vibrateAlert('closed');
+                        addLog("Detected : GateClosed"); stopGateReminder();
+                        alert("SAMXI INFO: Gate is Closed.");
                     }
                     lastSensorStatus = "CLOSED";
                     if(!isStatusLocked) { 
                         s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML; 
-                        s.style.backgroundColor = "#1e3a1e"; // Green theme for closed
+                        s.style.backgroundColor = "#1e3a1e";
                         hideProgress(); 
                     }
                 }
