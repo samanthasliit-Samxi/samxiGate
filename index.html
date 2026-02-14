@@ -12,7 +12,6 @@
     
     <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
-    // Commercial Auto-Tag Logic: Fixed to wait for permission
     OneSignalDeferred.push(async function(OneSignal) {
       await OneSignal.init({
         appId: "a71c864f-2514-4798-b919-4511e0801b5a",
@@ -22,7 +21,6 @@
         notifyButton: { enable: true },
       });
 
-      // Ensure tag is sent as soon as permission is granted or if already granted
       OneSignal.Notifications.addEventListener("permissionChange", function(permission) {
           if (permission) {
               let savedID = localStorage.getItem("samxi_id");
@@ -195,6 +193,7 @@
         function stopGateReminder() {
             if (gateReminderTimer) { clearInterval(gateReminderTimer); gateReminderTimer = null; }
             document.getElementById('stat').classList.remove("alert-active");
+            document.getElementById('stat').style.backgroundColor = "";
         }
 
         function addLog(msg) {
@@ -233,8 +232,14 @@
             
             setTimeout(() => { 
                 isStatusLocked = false; 
-                if(lastSensorStatus === "OPEN") s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML;
-                else if(lastSensorStatus === "CLOSED") s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML;
+                if(lastSensorStatus === "OPEN") {
+                    s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML;
+                    s.style.backgroundColor = "#3a1e1e";
+                }
+                else if(lastSensorStatus === "CLOSED") {
+                    s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML;
+                    s.style.backgroundColor = "#1e3a1e";
+                }
                 else s.innerHTML = "SYSTEM READY" + document.getElementById('pCont').outerHTML;
             }, 8000);
 
@@ -364,7 +369,6 @@
             dev = document.getElementById('id').value.trim();
             localStorage.setItem("samxi_id", dev);
             
-            // Commercial Handshake Sync
             try {
                 OneSignalDeferred.push(function(OneSignal) { 
                     OneSignal.login(dev);
@@ -386,18 +390,32 @@
                 document.getElementById('lastUpdate').innerText = "Last sync: " + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                 
                 if (p === "OPENING" || p === "OPEN") {
-                    lastSensorStatus = "OPEN";
-                    if(!isStatusLocked) { s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML; hideProgress(); }
                     if (lastSensorStatus !== "OPEN") {
-                        showToast("ALERT: Door is Opening!", "error"); vibrateAlert('opening');
-                        addLog("Detected : GateOpened"); startGateReminder();
+                        showToast("ALERT: Door is Opening!", "error"); 
+                        vibrateAlert('opening');
+                        addLog("Detected : GateOpened"); 
+                        startGateReminder();
+                        alert("SAMXI ALERT: Gate is Opening!"); // Browser Alert
+                    }
+                    lastSensorStatus = "OPEN";
+                    if(!isStatusLocked) { 
+                        s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML; 
+                        s.style.backgroundColor = "#3a1e1e"; // Red theme for open
+                        hideProgress(); 
                     }
                 } else if (p === "CLOSED") {
-                    lastSensorStatus = "CLOSED";
-                    if(!isStatusLocked) { s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML; hideProgress(); }
                     if (lastSensorStatus !== "CLOSED") {
-                        showToast("SUCCESS: Door is Closed", "green"); vibrateAlert('closed');
-                        addLog("Detected : GateClosed"); stopGateReminder();
+                        showToast("SUCCESS: Door is Closed", "green"); 
+                        vibrateAlert('closed');
+                        addLog("Detected : GateClosed"); 
+                        stopGateReminder();
+                        alert("SAMXI INFO: Gate is Closed."); // Browser Alert
+                    }
+                    lastSensorStatus = "CLOSED";
+                    if(!isStatusLocked) { 
+                        s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML; 
+                        s.style.backgroundColor = "#1e3a1e"; // Green theme for closed
+                        hideProgress(); 
                     }
                 }
                 if (p === "OFFLINE" && !isCountingDown) {
@@ -410,7 +428,6 @@
                     document.getElementById('pg2').style.display='none';
                     document.getElementById('pg3').style.display='block';
                     document.getElementById('gear').style.visibility='visible';
-                    // Force Status Update on Login
                     send("GET_STATE"); 
                 } else if (p === "WRONG_PIN") {
                     alert("Wrong PIN!");
@@ -430,10 +447,15 @@
                         if (!timerEditing) { document.getElementById('at').value = d[3]; currentWait = d[3]; }
                         document.getElementById('ae').value = d[2];
                         document.getElementById('abtn').style.display = (d[2]=="1") ? "block" : "none";
-                        // Auto-Correction for Initial Load Status
                         if(s.innerText.includes("CHECKING") && !isStatusLocked) {
-                           if(p.includes("OPEN")) s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML;
-                           else if(p.includes("CLOSED")) s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML;
+                           if(p.includes("OPEN")) {
+                               s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML;
+                               s.style.backgroundColor = "#3a1e1e";
+                           }
+                           else if(p.includes("CLOSED")) {
+                               s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML;
+                               s.style.backgroundColor = "#1e3a1e";
+                           }
                         }
                     } else if (p === "START_AUTO") { startAuto(); } 
                     else if (p === "PAUSED") {
@@ -446,7 +468,6 @@
                 onSuccess: () => {
                     client.subscribe("samxi/"+dev+"/state");
                     requestWakeLock();
-                    // Request actual sensor state immediately upon MQTT connection
                     send("GET_STATE");
                     const ns = document.getElementById('netStat');
                     ns.innerText = "System Ready"; ns.className = "net-status online-bg";
