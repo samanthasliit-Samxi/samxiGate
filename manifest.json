@@ -13,11 +13,11 @@
       "type": "image/png"
     }
   ],
-  "start_url": "/index.html",
+ "start_url": "/samxiGate/index.html",
   "background_color": "#141414",
   "theme_color": "#2ecc71",
   "display": "standalone",
   "orientation": "portrait",
-  "scope": "/",
+  "scope": "/samxiGate/",
   "gcm_sender_id": "482941778795"
 }
