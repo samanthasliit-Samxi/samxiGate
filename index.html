@@ -393,26 +393,38 @@ top:20px;color:white;cursor:pointer;">CLEAR LOGS</button>
             }, 1000);
         }
 
-        function connect() {
+    function connect() {
     dev = document.getElementById('id').value.trim();
     localStorage.setItem("samxi_id", dev);
     
-    // --- IMPROVED AUTO-SYNC HANDSHAKE ---
+    // --- THIS IS THE CRITICAL AUTO-SYNC TRIGGER ---
     try {
-        if (window.OneSignal) {
-            OneSignal.login(dev);
-            OneSignal.sendTag("device_id", dev);
-            console.log("Tag Sync Sent: " + dev);
+        if (window.OneSignalDeferred) {
+            OneSignalDeferred.push(async function(OneSignal) {
+                await OneSignal.login(dev);
+                await OneSignal.sendTag("device_id", dev);
+                console.log("Handshake Complete for: " + dev);
+            });
         }
-    } catch(e) {
-        console.log("OneSignal not ready yet");
-    }
+    } catch(e) { console.log("OneSignal Sync Failed"); }
 
 
             client = new Paho.MQTT.Client("broker.hivemq.com", 8884, "cl_" + Math.random().toString(16).slice(2,8));
-            client.onConnectionLost = (e) => {
-                if(!isCountingDown) { document.getElementById('led').className = "led red"; freezePanel(true, true); }
-            };
+
+
+client.onConnectionLost = (e) => {
+    if(!isCountingDown) { 
+        document.getElementById('led').className = "led red"; 
+        // Show the Reconnect button inside the status box
+        document.getElementById('stat').innerHTML = `
+            OFFLINE 
+            <button onclick="connect()" style="margin-top:10px; padding:5px 15px; background:#f1c40f; color:black; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">
+                RECONNECT NOW
+            </button>
+        ` + document.getElementById('pCont').outerHTML;
+        freezePanel(true, true); 
+    }
+};
             client.onMessageArrived = (m) => {
                 let p = m.payloadString;
                 let s = document.getElementById('stat');
