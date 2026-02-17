@@ -40,6 +40,21 @@
     </script>
 
     <style>
+        /* Fixes button alignment and spacing in the Settings Modal */
+.modal-content button {
+    width: 100%;
+    height: 55px;         /* Consistent height for all modal buttons */
+    margin: 10px 0;       /* Vertical spacing between buttons */
+    padding: 0;           /* Clean padding */
+    font-size: 1.1rem;    /* Uniform font size */
+    border-radius: 12px;  /* Rounded corners like the main UI */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
         body{font-family:sans-serif;text-align:center;background:#141414;color:white;margin:0;}
         .header{background:#1a1a1a;padding:15px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #2ecc71;}
         .led-group{display:flex; align-items:center; gap:12px;}
