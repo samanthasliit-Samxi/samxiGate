@@ -542,7 +542,7 @@ client.onConnectionLost = (e) => {
             alert("Settings Saved!");
         }
 
-        function factoryReset() { if(confirm("Are you sure? This will wipe all settings and restart the device."")) send('RESET_FACTORY'); }
+        function factoryReset() { if(confirm("Are you sure? This will wipe all settings and restart the device.")) send('RESET_FACTORY'); }
 
         function send(c) {
             if(client && client.isConnected()){
