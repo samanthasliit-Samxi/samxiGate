@@ -179,15 +179,20 @@ weight:bold;cursor:pointer;">FACTORY RESET</button>
         </div>
     </div>
 <div id="hModal">
-        <div class="modal-content">
-            <h2 style="color:#2ecc71; margin-top:0;">ACTIVITY HISTORY</h2>
-            <ul id="logList"></ul>
-            <button onclick="clearHistory()" style="width:100%;background:#444;padding:10px;border:none;border-radius:8px;margin-
+    <div class="modal-content">
+        <h2 style="color:#2ecc71; margin-top:0;">ACTIVITY HISTORY</h2>
+        <ul id="logList"></ul>
 
-top:20px;color:white;cursor:pointer;">CLEAR LOGS</button>
-            <button onclick="document.getElementById('hModal').style.display='none'" class="exit-link">EXIT</button>
-        </div>
+        <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
+        <button onclick="fetchSecurityLogs()" style="width:100%; background:#d9534f; color:white; padding:15px; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">
+            🛡️ UN-AUTHORIZED LOG
+        </button>
+        <div id="securityLogDisplay" style="margin-top:15px; max-height:250px; overflow-y:auto; font-size: 0.9rem;">
+             </div>
+        <button onclick="clearHistory()" style="width:100%;background:#444;padding:10px;border:none;border-radius:8px;margin-top:20px;color:white;cursor:pointer;">CLEAR LOGS</button>
+        <button onclick="document.getElementById('hModal').style.display='none'" class="exit-link">EXIT</button>
     </div>
+</div>
     
     <div id="toast"></div>
     <script>
