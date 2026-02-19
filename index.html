@@ -43,10 +43,10 @@
         /* Fixes button alignment and spacing in the Settings Modal */
 .modal-content button {
     width: 100%;
-    height: 55px;         /* Consistent height for all modal buttons */
-    margin: 10px 0;       /* Vertical spacing between buttons */
-    padding: 0;           /* Clean padding */
-    font-size: 1.1rem;    /* Uniform font size */
+    height: 55px;          /* Consistent height for all modal buttons */
+    margin: 10px 0;        /* Vertical spacing between buttons */
+    padding: 0;            /* Clean padding */
+    font-size: 1.1rem;     /* Uniform font size */
     border-radius: 12px;  /* Rounded corners like the main UI */
     display: flex;
     align-items: center;
@@ -59,7 +59,6 @@
         .header{background:#1a1a1a;padding:15px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #2ecc71;}
         .led-group{display:flex; align-items:center; gap:12px;}
         .wifi-box{font-size:0.75rem; font-weight:bold; color:#888; display:flex; align-items:center; gap:4px; background:#222; padding:3px 12px; border-radius:15px;
-
 border:1px solid #333; transition: 0.3s;}
         .sig-excellent{color:#00ff7f; border-color: #00ff7f;}
         .sig-good{color:#f1c40f; border-color: #f1c40f;}
@@ -72,7 +71,6 @@ border:1px solid #333; transition: 0.3s;}
         #id {font-size: 2rem; font-weight: bold; text-align: center; color: #2ecc71; border: 2px solid #333;}
         input,select{width:100%;padding:15px;margin:10px 0;background:#2a2a2a;border:1px solid #333;color:white;border-radius:8px;box-sizing:border-box;}
         .status-box{background:#2a2a2a;margin:15px 0;padding:25px;border-radius:12px;font-size:1.6rem;color:#2ecc71;border:1px solid #333;font-weight:bold; transition:
-
 0.3s; position: relative; overflow: hidden;}
         .progress-container{position:absolute; bottom:0; left:0; width:100%; height:6px; background:#1a1a1a; display:none;}
         .progress-bar{height:100%; width:0%; background:#2ecc71; transition: linear;}
@@ -82,7 +80,6 @@ border:1px solid #333; transition: 0.3s;}
         .alert-active{background:#ff4d4d !important; color:white !important; animation: blink 1s infinite;}
         @keyframes blink { 50% { opacity: 0.5; } }
         .btn{width:100%;margin:10px 0;padding:20px;font-size:1.5rem;border:none;border-radius:12px;font-weight:bold;cursor:pointer;color:white;transition:transform 0.1s;
-
 height: 70px; display: flex; align-items: center; justify-content: center;}
         .btn:active{transform:scale(0.96);}
         .up{background:#2ecc71;}
@@ -93,17 +90,14 @@ height: 70px; display: flex; align-items: center; justify-content: center;}
         .hist-btn{background:#444; font-size:1.1rem; height:50px; margin-top:20px; border:1px solid #555;}
         #modal, #hModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:100; overflow-y: auto;}
         .modal-content{background:#1c1c1c; width:85%; max-width:350px; margin:30px auto; padding:25px; border-radius:20px; text-align:left; border:1px solid #333;
-
 padding-bottom: 50px;}
         .exit-link {background:none; color:#FFFFFF !important; border:none; margin-top:30px; display:block; width:100%; font-weight:900; font-size:2rem; cursor:pointer;
-
 text-shadow:0 0 10px #ffffff, 0 0 20px #ffffff; text-align: center;}
         #logList{list-style:none; padding:0; margin:0; max-height:350px; overflow-y:auto;}
         .log-item{padding:10px; border-bottom:1px solid #333; display:flex; flex-direction:column; font-size:0.85rem;}
         .log-date{color:#888; font-size:0.75rem;}
         .log-msg{color:#2ecc71; font-weight:bold; margin-top:3px;}
         #toast {visibility: hidden; min-width: 280px; color: #fff; text-align: center; border-radius: 12px; padding: 18px; position: fixed; z-index: 1000; left: 50%; bottom: 40px;
-
 transform: translateX(-50%); box-shadow: 0 8px 20px rgba(0,0,0,0.6); font-weight: bold; font-size: 1.1rem; transition: 0.3s;}
         #toast.show {visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s;}
         .toast-red { background-color: #e74c3c; border: 2px solid #c0392b; }
@@ -120,13 +114,9 @@ transform: translateX(-50%); box-shadow: 0 8px 20px rgba(0,0,0,0.6); font-weight
             <div id="led" class="led"></div>
             <svg id="gear" class="gear-icon" onclick="document.getElementById('modal').style.display='block'" viewBox="0 0 24 24">
                 <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03
-
 -.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21
-
 -.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36
-
 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12
-
 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
             </svg>
         </div>
@@ -167,13 +157,10 @@ transform: translateX(-50%); box-shadow: 0 8px 20px rgba(0,0,0,0.6); font-weight
             <label>Update PIN:</label>
             <input type="password" id="newPin" placeholder="4 Digits" maxlength="4">
             <button onclick="changePin()" style="width:100%;background:#f1c40f;padding:15px;border:none;border-radius:8px;font-weight:bold;margin-
-
 bottom:10px;cursor:pointer;">SET NEW PIN</button>
             <button onclick="save()" style="width:100%;background:#2ecc71;padding:15px;border:none;border-radius:8px;font-weight:bold;color:black;margin-
-
 top:10px;cursor:pointer;">SAVE SETTINGS</button>
             <button onclick="factoryReset()" style="width:100%;background:#e74c3c;padding:15px;border:none;border-radius:8px;margin-top:15px;color:white;font-
-
 weight:bold;cursor:pointer;">FACTORY RESET</button>
             <button onclick="document.getElementById('modal').style.display='none'" class="exit-link">EXIT</button>
         </div>
@@ -576,7 +563,7 @@ client.onConnectionLost = (e) => {
         // --- SECURITY LOG FETCHING & FILTERING ---
         async function fetchSecurityLogs() {
             const appId = "a71c864f-2514-4798-b919-4511e0801b5a";
-            const restKey = "os_v2_app_u4oimtzfcrdzroiziui6baa3lko2frjuuxsu6lu5odh23t26p24mfaoi2f6y6j4cp2svy46rjolnxhepcg3bgv4g3364af6rat53txq"; 
+            const restKey = "os_v2_app_u4oimtzfcrdzroiziui6baa3licgfjsz3mse6b542ulr6dgopjosjmuh4vlof3jya3rudtemuxv5gjj5e6cc3c5jyenpsx5s6trecdq"; 
             const display = document.getElementById("securityLogDisplay");
 
             display.innerHTML = "<p style='text-align:center; color:#888;'>Checking System Records...</p>";
@@ -597,9 +584,11 @@ client.onConnectionLost = (e) => {
                     data.notifications.forEach(notif => {
                         let msg = notif.contents.en;
                         
-                        // FILTER LOGIC
-                        if (msg.includes("still open")) return; // Skip 5-min reminders
-                        if (msg.includes("via APP")) return;    // Skip app-authorized moves
+                        // FILTER LOGIC - Only show Manual/Alert triggers
+                        if (msg.includes("still open")) return; 
+                        if (msg.includes("via APP")) return;
+                        // Extra check: Only show messages containing "MANUALLY" or "ALERT"
+                        if (!msg.includes("MANUALLY") && !msg.includes("ALERT")) return;
 
                         let date = new Date(notif.queued_at * 1000);
                         let timeStr = date.toLocaleString('en-GB', { timeZone: 'Asia/Colombo' });
