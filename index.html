@@ -116,7 +116,7 @@ transform: translateX(-50%); box-shadow: 0 8px 20px rgba(0,0,0,0.6); font-weight
     <div class="header">
         <span>SAMXI SMART DOOR</span>
         <div class="led-group">
-            <div id="wifiSig" class="wifi-box" style="display:none;">📶 <span id="rssiVal">--</span></div>
+            <div id="wifiSig" class="wifi-box" style="display:none;"> <span id="rssiVal">--</span></div>
             <div id="led" class="led"></div>
             <svg id="gear" class="gear-icon" onclick="document.getElementById('modal').style.display='block'" viewBox="0 0 24 24">
                 <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03
@@ -185,7 +185,7 @@ weight:bold;cursor:pointer;">FACTORY RESET</button>
 
         <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
         <button onclick="fetchSecurityLogs()" style="width:100%; background:#d9534f; color:white; padding:15px; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">
-            🛡️ UN-AUTHORIZED LOG
+              UN-AUTHORIZED LOG
         </button>
         <div id="securityLogDisplay" style="margin-top:15px; max-height:250px; overflow-y:auto; font-size: 0.9rem;">
              </div>
@@ -274,9 +274,23 @@ weight:bold;cursor:pointer;">FACTORY RESET</button>
             if(type === 'down') displayTxt = "CLOSING...";
             if(type === 'stop') displayTxt = "STOPPED";
            
-            // Removed delay and progress bar logic to make buttons instant
+            isStatusLocked = true;
             const s = document.getElementById('stat');
             s.innerHTML = displayTxt + document.getElementById('pCont').outerHTML;
+            showProgress(8);
+           
+            setTimeout(() => {
+                isStatusLocked = false;
+                if(lastSensorStatus === "OPEN") {
+                    s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML;
+                    s.style.backgroundColor = "#3a1e1e";
+                }
+                else if(lastSensorStatus === "CLOSED") {
+                    s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML;
+                    s.style.backgroundColor = "#1e3a1e";
+                }
+                else s.innerHTML = "SYSTEM READY" + document.getElementById('pCont').outerHTML;
+            }, 8000);
 
             addLog(logMsg);
             send(type);
@@ -560,24 +574,21 @@ client.onConnectionLost = (e) => {
         }
 
         // --- SECURITY LOG FETCHING & FILTERING ---
-       // --- SECURE SECURITY LOG FETCHING (NO HARDCODED KEY) ---
         async function fetchSecurityLogs() {
             const appId = "a71c864f-2514-4798-b919-4511e0801b5a";
-            const display = document.getElementById("securityLogDisplay");
-
-            // Look for key in your phone's memory
+            // LOCAL STORAGE KEY RETRIEVAL
             let restKey = localStorage.getItem("samxi_rest_key");
 
-            // If not found, ask you to paste it (Only happens once)
             if (!restKey) {
                 restKey = prompt("Please enter your new OneSignal REST API Key:");
                 if (restKey) {
                     localStorage.setItem("samxi_rest_key", restKey);
                 } else {
-                    return;
+                    return; 
                 }
             }
 
+            const display = document.getElementById("securityLogDisplay");
             display.innerHTML = "<p style='text-align:center; color:#888;'>Checking System Records...</p>";
 
             try {
@@ -589,31 +600,28 @@ client.onConnectionLost = (e) => {
                     }
                 });
 
-                const data = await response.json();
-               
-                // If the key was deleted or wrong, clear it and ask again next time
                 if (response.status === 401) {
                     localStorage.removeItem("samxi_rest_key");
-                    display.innerHTML = "<p style='text-align:center; color:#ff4d4d;'>Invalid Key. Try again.</p>";
+                    display.innerHTML = "<p style='text-align:center; color:#ff4d4d;'>Invalid Key. Reload to try again.</p>";
                     return;
                 }
 
+                const data = await response.json();
                 let html = "";
+
                 if (data.notifications && data.notifications.length > 0) {
                     data.notifications.forEach(notif => {
                         let msg = notif.contents.en;
-                        
-                        // FILTER LOGIC
-                        // Only show messages containing "MANUALLY" or "ALERT"
-                        // This relies on the ESP8266 logic to only send these during unauthorized events
-                        if (msg.includes("still open") || msg.includes("via APP")) return;
+                       
+                        if (msg.includes("still open")) return; 
+                        if (msg.includes("via APP")) return; 
                         if (!msg.includes("MANUALLY") && !msg.includes("ALERT")) return;
 
                         let date = new Date(notif.queued_at * 1000);
                         let timeStr = date.toLocaleString('en-GB', { timeZone: 'Asia/Colombo' });
                        
                         html += `<div style="padding:10px; border-bottom:1px solid #333; background:#222; margin-bottom:5px; border-radius:8px; border-left: 5px solid #ff4d4d;">
-                                    <small style="color:#ff4d4d; font-weight:bold;">⚠️ UN-AUTHORIZED EVENT</small><br>
+                                    <small style="color:#ff4d4d; font-weight:bold;"> UN-AUTHORIZED EVENT</small><br>
                                     <span style="color:#888; font-size:11px;">${timeStr}</span><br>
                                     <strong style="color:#eee;">${msg}</strong>
                                  </div>`;
