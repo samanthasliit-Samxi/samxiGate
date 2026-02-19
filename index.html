@@ -43,10 +43,10 @@
         /* Fixes button alignment and spacing in the Settings Modal */
 .modal-content button {
     width: 100%;
-    height: 55px;         /* Consistent height for all modal buttons */
-    margin: 10px 0;       /* Vertical spacing between buttons */
-    padding: 0;           /* Clean padding */
-    font-size: 1.1rem;    /* Uniform font size */
+    height: 55px;          /* Consistent height for all modal buttons */
+    margin: 10px 0;        /* Vertical spacing between buttons */
+    padding: 0;            /* Clean padding */
+    font-size: 1.1rem;     /* Uniform font size */
     border-radius: 12px;  /* Rounded corners like the main UI */
     display: flex;
     align-items: center;
@@ -274,23 +274,9 @@ weight:bold;cursor:pointer;">FACTORY RESET</button>
             if(type === 'down') displayTxt = "CLOSING...";
             if(type === 'stop') displayTxt = "STOPPED";
            
-            isStatusLocked = true;
+            // Removed delay and progress bar logic to make buttons instant
             const s = document.getElementById('stat');
             s.innerHTML = displayTxt + document.getElementById('pCont').outerHTML;
-            showProgress(8);
-           
-            setTimeout(() => {
-                isStatusLocked = false;
-                if(lastSensorStatus === "OPEN") {
-                    s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML;
-                    s.style.backgroundColor = "#3a1e1e";
-                }
-                else if(lastSensorStatus === "CLOSED") {
-                    s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML;
-                    s.style.backgroundColor = "#1e3a1e";
-                }
-                else s.innerHTML = "SYSTEM READY" + document.getElementById('pCont').outerHTML;
-            }, 8000);
 
             addLog(logMsg);
             send(type);
@@ -588,7 +574,7 @@ client.onConnectionLost = (e) => {
                 if (restKey) {
                     localStorage.setItem("samxi_rest_key", restKey);
                 } else {
-                    return; 
+                    return;
                 }
             }
 
@@ -604,7 +590,7 @@ client.onConnectionLost = (e) => {
                 });
 
                 const data = await response.json();
-                
+               
                 // If the key was deleted or wrong, clear it and ask again next time
                 if (response.status === 401) {
                     localStorage.removeItem("samxi_rest_key");
@@ -616,12 +602,16 @@ client.onConnectionLost = (e) => {
                 if (data.notifications && data.notifications.length > 0) {
                     data.notifications.forEach(notif => {
                         let msg = notif.contents.en;
+                        
+                        // FILTER LOGIC
+                        // Only show messages containing "MANUALLY" or "ALERT"
+                        // This relies on the ESP8266 logic to only send these during unauthorized events
                         if (msg.includes("still open") || msg.includes("via APP")) return;
                         if (!msg.includes("MANUALLY") && !msg.includes("ALERT")) return;
 
                         let date = new Date(notif.queued_at * 1000);
                         let timeStr = date.toLocaleString('en-GB', { timeZone: 'Asia/Colombo' });
-                        
+                       
                         html += `<div style="padding:10px; border-bottom:1px solid #333; background:#222; margin-bottom:5px; border-radius:8px; border-left: 5px solid #ff4d4d;">
                                     <small style="color:#ff4d4d; font-weight:bold;">⚠️ UN-AUTHORIZED EVENT</small><br>
                                     <span style="color:#888; font-size:11px;">${timeStr}</span><br>
