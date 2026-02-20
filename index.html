@@ -15,52 +15,19 @@
     OneSignalDeferred.push(async function(OneSignal) {
       await OneSignal.init({
         appId: "a71c864f-2514-4798-b919-4511e0801b5a",
-       serviceWorkerPath: "OneSignalSDKWorker.js",
+        serviceWorkerPath: "OneSignalSDKWorker.js",
         serviceWorkerParam: { scope: "/" },
         safari_web_id: "web.onesignal.auto.2a0b8f88-f61f-4cbf-954f-aff96911a546",
         notifyButton: { enable: true },
       });
-
-      OneSignal.Notifications.addEventListener("permissionChange", function(permission) {
-          if (permission) {
-              let savedID = localStorage.getItem("samxi_id");
-              if(savedID) {
-                  OneSignal.login(savedID);
-                  OneSignal.sendTag("device_id", savedID);
-              }
-          }
-      });
-     
-      let savedID = localStorage.getItem("samxi_id");
-      if(savedID && OneSignal.Notifications.permission) {
-          OneSignal.login(savedID);
-          OneSignal.sendTag("device_id", savedID);
-      }
     });
     </script>
 
     <style>
-        .modal-content button {
-            width: 100%;
-            height: 55px;
-            margin: 10px 0;
-            padding: 0;
-            font-size: 1.1rem;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-        }
         body{font-family:sans-serif;text-align:center;background:#141414;color:white;margin:0;}
         .header{background:#1a1a1a;padding:15px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #2ecc71;}
         .led-group{display:flex; align-items:center; gap:12px;}
         .wifi-box{font-size:0.75rem; font-weight:bold; color:#888; display:flex; align-items:center; gap:4px; background:#222; padding:3px 12px; border-radius:15px; border:1px solid #333; transition: 0.3s;}
-        .sig-excellent{color:#00ff7f; border-color: #00ff7f;}
-        .sig-good{color:#f1c40f; border-color: #f1c40f;}
-        .sig-weak{color:#ff4d4d; border-color: #ff4d4d;}
         .led{height:15px;width:15px;border-radius:50%;background:#444;transition:0.3s;}
         .green{background:#00ff7f;box-shadow:0 0 10px #00ff7f;}
         .red{background:#ff4d4d;box-shadow:0 0 10px #ff4d4d;}
@@ -85,16 +52,12 @@
         .timer-lock{pointer-events:none; opacity:0.35 !important; filter: contrast(0.8);}
         .hist-btn{background:#444; font-size:1.1rem; height:50px; margin-top:20px; border:1px solid #555;}
         #modal, #hModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:100; overflow-y: auto;}
-        .modal-content{background:#1c1c1c; width:85%; max-width:350px; margin:30px auto; padding:25px; border-radius:20px; text-align:left; border:1px solid #333; padding-bottom: 50px;}
-        .exit-link {background:none; color:#FFFFFF !important; border:none; margin-top:30px; display:block; width:100%; font-weight:900; font-size:2rem; cursor:pointer; text-shadow:0 0 10px #ffffff, 0 0 20px #ffffff; text-align: center;}
-        #logList{list-style:none; padding:0; margin:0; max-height:350px; overflow-y:auto;}
+        .modal-content{background:#1c1c1c; width:85%; max-width:350px; margin:30px auto; padding:25px; border-radius:20px; text-align:left; border:1px solid #333;}
+        .exit-link {background:none; color:#FFFFFF !important; border:none; margin-top:30px; display:block; width:100%; font-weight:900; font-size:2rem; cursor:pointer; text-align: center;}
+        #logList{list-style:none; padding:0; margin:0; max-height:300px; overflow-y:auto;}
         .log-item{padding:10px; border-bottom:1px solid #333; display:flex; flex-direction:column; font-size:0.85rem;}
-        .log-date{color:#888; font-size:0.75rem;}
-        .log-msg{color:#2ecc71; font-weight:bold; margin-top:3px;}
-        #toast {visibility: hidden; min-width: 280px; color: #fff; text-align: center; border-radius: 12px; padding: 18px; position: fixed; z-index: 1000; left: 50%; bottom: 40px; transform: translateX(-50%); box-shadow: 0 8px 20px rgba(0,0,0,0.6); font-weight: bold; font-size: 1.1rem; transition: 0.3s;}
+        #toast {visibility: hidden; min-width: 280px; color: #fff; text-align: center; border-radius: 12px; padding: 18px; position: fixed; z-index: 1000; left: 50%; bottom: 40px; transform: translateX(-50%); font-weight: bold; transition: 0.3s;}
         #toast.show {visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s;}
-        .toast-red { background-color: #e74c3c; border: 2px solid #c0392b; }
-        .toast-green { background-color: #2ecc71; border: 2px solid #27ae60; color: #141414 !important; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 40px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 40px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
@@ -110,313 +73,146 @@
             </svg>
         </div>
     </div>
+
     <div class="container">
         <div id="pg1">
             <h2 style="color:#2ecc71;">LOGIN</h2>
-            <div id="netStat" class="net-status online-bg">Checking Connection...</div>
+            <div id="netStat" class="net-status online-bg">System Ready</div>
             <input type="text" id="id" placeholder="PRODUCT ID" value="SAMXI_12345">
-            <button onclick="connect()" class="btn up" style="padding:15px; font-size:1.3rem;">NEXT</button>
+            <button onclick="connect()" class="btn up">NEXT</button>
         </div>
+
         <div id="pg2" style="display:none;">
-            <div class="status-box">CONNECTED</div>
+            <div class="status-box">DEVICE CONNECTED</div>
             <input type="password" id="entryPin" placeholder="ENTER 4-DIGIT PIN" maxlength="4" style="text-align:center; font-size:1.8rem; border:2px solid #f1c40f;">
             <button onclick="verifyPin()" class="btn down" style="color:black; background:#f1c40f;">UNLOCK DOOR</button>
         </div>
+
         <div id="pg3" style="display:none;">
-            <div class="status-box" id="stat"> CHECKING SENSOR... <div class="progress-container" id="pCont"><div class="progress-bar" id="pBar"></div></div> </div>
+            <div class="status-box" id="stat">CHECKING SENSOR... 
+                <div class="progress-container" id="pCont"><div class="progress-bar" id="pBar"></div></div> 
+            </div>
             <div id="lastUpdate" style="font-size: 0.8rem; color: #888; margin-top: -10px; margin-bottom: 10px;">Last update: --:--</div>
             <button id="m1" class="btn up" onclick="cmd('up', 'OPEN GATE')">OPEN DOOR</button>
             <button id="m2" class="btn stop" onclick="cmd('stop', 'STOP GATE')">STOP</button>
             <button id="m3" class="btn down" onclick="cmd('down', 'CLOSE GATE')">CLOSE DOOR</button>
             <button id="abtn" class="btn auto" onclick="startAuto()">AUTO CLOSE</button>
-            <button id="hbtn" class="btn hbt-btn" onclick="openHistory()">VIEW ACTIVITY HISTORY</button>
+            <button id="hbtn" class="btn hist-btn" onclick="openHistory()">VIEW ACTIVITY HISTORY</button>
         </div>
     </div>
-    <div id="modal">
-        <div class="modal-content">
-            <h2 style="color:#2ecc71; margin-top:0;">SETTINGS</h2>
-            <label>Auto Close:</label>
-            <select id="ae" onchange="save()">
-                <option value="1">ENABLED</option>
-                <option value="0">DISABLED</option>
-            </select>
-            <label>Timer (sec):</label>
-            <input type="number" id="at" onfocus="timerEditing=true" oninput="timerEditing=true">
-            <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
-            <label>Update PIN:</label>
-            <input type="password" id="newPin" placeholder="4 Digits" maxlength="4">
-            <button onclick="changePin()" style="width:100%;background:#f1c40f;padding:15px;border:none;border-radius:8px;font-weight:bold;margin-bottom:10px;cursor:pointer;">SET NEW PIN</button>
-            <button onclick="save()" style="width:100%;background:#2ecc71;padding:15px;border:none;border-radius:8px;font-weight:bold;color:black;margin-top:10px;cursor:pointer;">SAVE SETTINGS</button>
-            <button onclick="factoryReset()" style="width:100%;background:#e74c3c;padding:15px;border:none;border-radius:8px;margin-top:15px;color:white;font-weight:bold;cursor:pointer;">FACTORY RESET</button>
-            <button onclick="document.getElementById('modal').style.display='none'" class="exit-link">EXIT</button>
-        </div>
-    </div>
+
     <div id="hModal">
         <div class="modal-content">
-            <h2 style="color:#2ecc71; margin-top:0;">ACTIVITY HISTORY</h2>
+            <h2 style="color:#2ecc71;">ACTIVITY HISTORY</h2>
             <ul id="logList"></ul>
-
             <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
-            <button onclick="fetchSecurityLogs()" style="width:100%; background:#d9534f; color:white; padding:15px; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">
-                🛡️ UN-AUTHORIZED LOG
-            </button>
-            <div id="securityLogDisplay" style="margin-top:15px; max-height:250px; overflow-y:auto; font-size: 0.9rem;"></div>
-            <button onclick="clearHistory()" style="width:100%;background:#444;padding:10px;border:none;border-radius:8px;margin-top:20px;color:white;cursor:pointer;">CLEAR LOGS</button>
+            <button onclick="fetchSecurityLogs()" style="width:100%; background:#d9534f; color:white; padding:15px; border-radius:12px; font-weight:bold;">🛡️ UN-AUTHORIZED LOG</button>
+            <div id="securityLogDisplay" style="margin-top:15px; max-height:200px; overflow-y:auto;"></div>
+            <button onclick="clearHistory()" style="width:100%; background:#444; color:white; padding:10px; border-radius:8px; margin-top:20px;">CLEAR LOGS</button>
             <button onclick="document.getElementById('hModal').style.display='none'" class="exit-link">EXIT</button>
         </div>
     </div>
-   
+
     <div id="toast"></div>
+
     <script>
-        let wakeLock = null;
-        let client, dev, currentWait = 10, countdownTimer, lastMsgTime = Date.now();
-        let timerEditing = false, isCountingDown = false, isStatusLocked = false;
-        let lastSensorStatus = "OFFLINE";
-        let lastButtonPressTime = 0; // Tracks Safety Operations
-        let gateReminderTimer = null, reminderInterval = 5 * 60 * 1000;
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        async function requestWakeLock() {
-            try { if ('wakeLock' in navigator) { wakeLock = await navigator.wakeLock.request('screen'); } } catch (err) {}
-        }
-
-        document.addEventListener('visibilitychange', async () => {
-            if (document.visibilityState === 'visible') {
-                await requestWakeLock();
-                lastMsgTime = Date.now();
-                if (!client || !client.isConnected()) { connect(); } else { send("PING"); }
-            }
-        });
-
-        function showToast(message, type) {
-            const x = document.getElementById("toast");
-            x.innerText = message;
-            x.className = "show " + (type === 'error' ? 'toast-red' : 'toast-green');
-            setTimeout(function(){ x.className = ""; }, 3000);
-        }
-
-        function vibrateAlert(type) {
-            if ("vibrate" in navigator) {
-                type === 'opening' ? navigator.vibrate([500, 100, 500]) : navigator.vibrate(200);
-            }
-        }
-
-        function startGateReminder() {
-            if (gateReminderTimer) return;
-            gateReminderTimer = setInterval(() => {
-                const s = document.getElementById('stat');
-                s.innerHTML = "ATTENTION GATE IS OPEN" + document.getElementById('pCont').outerHTML;
-                s.classList.add("alert-active");
-                playAlertBeeps();
-                showToast("REMINDER: Gate is still open!", "error");
-            }, reminderInterval);
-        }
-
-        function stopGateReminder() {
-            if (gateReminderTimer) { clearInterval(gateReminderTimer); gateReminderTimer = null; }
-            document.getElementById('stat').classList.remove("alert-active");
-            document.getElementById('stat').style.backgroundColor = "";
-        }
-
-        function addLog(msg) {
-            const now = new Date();
-            const dateStr = now.toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'});
-            const timeStr = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            let logs = JSON.parse(localStorage.getItem("samxi_logs") || "[]");
-            logs.unshift({ date: dateStr + " " + timeStr, msg: msg });
-            if(logs.length > 50) logs.pop();
-            localStorage.setItem("samxi_logs", JSON.stringify(logs));
-        }
-
-        function openHistory() {
-            const list = document.getElementById('logList');
-            let logs = JSON.parse(localStorage.getItem("samxi_logs") || "[]");
-            list.innerHTML = logs.length ? logs.map(l => {
-                let clr = l.msg.includes("Detected") ? "color:#FFFF00;" : "color:#2ecc71;";
-                return `<li class="log-item"><span class="log-date">${l.date}</span><span class="log-msg" style="${clr}">${l.msg}</span></li>`;
-            }).join('') : '<li style="text-align:center;color:#666;">No activity found</li>';
-            document.getElementById('hModal').style.display = 'block';
-        }
-
-        function clearHistory() { 
-            localStorage.setItem("samxi_logs", "[]"); 
-            const nowSeconds = Math.floor(Date.now() / 1000);
-            localStorage.setItem("samxi_log_clear_time", nowSeconds);
-            openHistory(); 
-            document.getElementById("securityLogDisplay").innerHTML = "<p style='text-align:center; color:#2ecc71;'>Logs Cleared Successfully.</p>";
-            showToast("All History Cleared", "green");
-        }
-
-        function cmd(type, logMsg) {
-            if(isCountingDown && type !== 'auto') return;
-            
-            // Set Safety Window
-            lastButtonPressTime = Math.floor(Date.now() / 1000);
-
-            let displayTxt = "WORKING...";
-            if(type === 'up') displayTxt = "OPENING...";
-            if(type === 'down') displayTxt = "CLOSING...";
-            if(type === 'stop') displayTxt = "STOPPED";
-           
-            isStatusLocked = true;
-            const s = document.getElementById('stat');
-            s.innerHTML = displayTxt + document.getElementById('pCont').outerHTML;
-            showProgress(8);
-           
-            setTimeout(() => {
-                isStatusLocked = false;
-                if(lastSensorStatus === "OPEN") {
-                    s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML;
-                    s.style.backgroundColor = "#3a1e1e";
-                }
-                else if(lastSensorStatus === "CLOSED") {
-                    s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML;
-                    s.style.backgroundColor = "#1e3a1e";
-                }
-                else s.innerHTML = "SYSTEM READY" + document.getElementById('pCont').outerHTML;
-            }, 8000);
-
-            addLog(logMsg);
-            send(type);
-        }
+        let client, dev, wakeLock = null;
+        let lastButtonPressTime = 0, lastMsgTime = Date.now(), isStatusLocked = false, lastSensorStatus = "OFFLINE";
 
         function connect() {
             dev = document.getElementById('id').value.trim();
             localStorage.setItem("samxi_id", dev);
-           
-            try {
-                if (window.OneSignalDeferred) {
-                    OneSignalDeferred.push(async function(OneSignal) {
-                        await OneSignal.login(dev);
-                        await OneSignal.sendTag("device_id", dev);
-                    });
-                }
-            } catch(e) {}
-
+            
+            // Start MQTT Connection
             client = new Paho.MQTT.Client("broker.hivemq.com", 8884, "cl_" + Math.random().toString(16).slice(2,8));
 
-            client.onConnectionLost = (e) => {
-                if(!isCountingDown) {
-                    document.getElementById('led').className = "led red";
-                    document.getElementById('stat').innerHTML = `OFFLINE <button onclick="connect()" style="margin-top:10px; padding:5px 15px; background:#f1c40f; color:black; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">RECONNECT NOW</button>` + document.getElementById('pCont').outerHTML;
-                    freezePanel(true, true);
-                }
-            };
             client.onMessageArrived = (m) => {
                 let p = m.payloadString;
                 let s = document.getElementById('stat');
                 lastMsgTime = Date.now();
-                document.getElementById('led').className="led green";
-                if(!isCountingDown) freezePanel(false, true);
-               
-                if (p === "OPENING" || p === "OPEN") {
-                    if (lastSensorStatus !== "OPEN") {
-                        showToast("ALERT: Door is Opening!", "error");
-                        vibrateAlert('opening');
-                        addLog("Detected : GateOpened");
-                        startGateReminder();
-                    }
-                    lastSensorStatus = "OPEN";
-                    if(!isStatusLocked) { s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML; s.style.backgroundColor = "#3a1e1e"; hideProgress(); }
-                } else if (p === "CLOSED") {
-                    if (lastSensorStatus !== "CLOSED") {
-                        showToast("SUCCESS: Door is Closed", "green");
-                        vibrateAlert('closed');
-                        addLog("Detected : GateClosed");
-                        stopGateReminder();
-                    }
-                    lastSensorStatus = "CLOSED";
-                    if(!isStatusLocked) { s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML; s.style.backgroundColor = "#1e3a1e"; hideProgress(); }
+                document.getElementById('led').className = "led green";
+
+                // MOVE FROM LOGIN TO PIN PAGE ONCE SERVER RESPONDS
+                if (document.getElementById('pg1').style.display !== 'none') {
+                    document.getElementById('pg1').style.display = 'none';
+                    document.getElementById('pg2').style.display = 'block';
                 }
-                // ... (rest of message handling: DATA|, PIN_OK, etc.)
+
                 if (p === "PIN_OK") {
-                    localStorage.setItem("samxi_pin", document.getElementById('entryPin').value);
-                    document.getElementById('pg2').style.display='none';
-                    document.getElementById('pg3').style.display='block';
-                    document.getElementById('gear').style.visibility='visible';
-                    send("GET_STATE");
-                } else if (p.startsWith("DATA|")) {
-                    let d = p.split("|");
-                    updateWiFi(d[1]);
-                    document.getElementById('ae').value = d[2];
-                    document.getElementById('at').value = d[3];
-                    currentWait = d[3];
-                } else if (p === "START_AUTO") { startAuto(); }
+                    document.getElementById('pg2').style.display = 'none';
+                    document.getElementById('pg3').style.display = 'block';
+                    document.getElementById('gear').style.visibility = 'visible';
+                } else if (p === "WRONG_PIN") {
+                    alert("Incorrect PIN!");
+                } else if (p === "OPEN" || p === "CLOSED") {
+                    lastSensorStatus = p;
+                    if(!isStatusLocked) {
+                        s.innerHTML = "GATE " + p + document.getElementById('pCont').outerHTML;
+                        s.style.backgroundColor = (p === "OPEN") ? "#3a1e1e" : "#1e3a1e";
+                    }
+                }
             };
 
             client.connect({
-                useSSL:true, keepAliveInterval: 10, timeout: 5,
+                useSSL: true, timeout: 5,
                 onSuccess: () => {
-                    client.subscribe("samxi/"+dev+"/state");
-                    requestWakeLock();
+                    client.subscribe("samxi/" + dev + "/state");
                     send("GET_STATE");
+                    // Force move to PIN page if connection is successful
+                    document.getElementById('pg1').style.display = 'none';
+                    document.getElementById('pg2').style.display = 'block';
                 },
-                onFailure: () => { setTimeout(connect, 3000); }
+                onFailure: () => { alert("Connection Failed. Check Internet."); }
             });
+        }
+
+        function verifyPin() {
+            let pin = document.getElementById('entryPin').value;
+            if(pin.length < 4) { alert("Enter 4 digits"); return; }
+            send("VERIFY|" + pin);
+        }
+
+        function cmd(type, logMsg) {
+            lastButtonPressTime = Math.floor(Date.now() / 1000);
+            isStatusLocked = true;
+            document.getElementById('stat').innerHTML = "WORKING..." + document.getElementById('pCont').outerHTML;
+            send(type);
+            setTimeout(() => { isStatusLocked = false; }, 5000);
+        }
+
+        function send(c) {
+            if (client && client.isConnected()) {
+                let m = new Paho.MQTT.Message(c);
+                m.destinationName = "samxi/" + dev + "/cmd";
+                client.send(m);
+            }
         }
 
         async function fetchSecurityLogs() {
             const appId = "a71c864f-2514-4798-b919-4511e0801b5a";
-            const display = document.getElementById("securityLogDisplay");
-            let restKey = localStorage.getItem("samxi_rest_key");
-            const clearTime = parseInt(localStorage.getItem("samxi_log_clear_time") || "0");
-
-            if (!restKey) {
-                restKey = prompt("Please enter REST API Key:");
-                if (restKey) localStorage.setItem("samxi_rest_key", restKey);
-                else return;
-            }
-
-            display.innerHTML = "<p style='color:#888;'>Checking Records...</p>";
+            const restKey = localStorage.getItem("samxi_rest_key") || prompt("Enter OneSignal REST API Key:");
+            if (restKey) localStorage.setItem("samxi_rest_key", restKey);
 
             try {
                 const response = await fetch(`https://onesignal.com/api/v1/notifications?app_id=${appId}&limit=50`, {
                     headers: {'Authorization': `Basic ${restKey}`, 'Content-Type': 'application/json'}
                 });
                 const data = await response.json();
-                
                 let html = "";
-                if (data.notifications) {
-                    data.notifications.forEach(notif => {
-                        let msg = notif.contents.en;
-                        let notifTime = notif.queued_at;
-
-                        // STAGE 1: Time Clear Filter
-                        if (notifTime <= clearTime) return;
-                        
-                        // STAGE 2: "via APP" tag filter
-                        if (msg.includes("via APP")) return;
-
-                        // STAGE 3: Safety Operation (30s Window)
-                        let timeDiff = Math.abs(notifTime - lastButtonPressTime);
-                        if (timeDiff < 30) return;
-
-                        // STAGE 4: Routine warnings filter
-                        if (msg.includes("still open")) return;
-
-                        // STAGE 5: Show Alerts & Successes (Open/Close)
-                        if (msg.includes("ALERT") || msg.includes("SUCCESS")) {
-                            let date = new Date(notifTime * 1000);
-                            let timeStr = date.toLocaleString('en-GB', { timeZone: 'Asia/Colombo' });
-                            let themeColor = msg.includes("OPENED") ? "#ff4d4d" : "#2ecc71";
-                            let label = msg.includes("OPENED") ? "⚠️ UN-AUTHORIZED OPEN" : "✅ SYSTEM CLOSE";
-
-                            html += `<div style="padding:10px; border-bottom:1px solid #333; background:#222; margin-bottom:5px; border-radius:8px; border-left: 5px solid ${themeColor};">
-                                        <small style="color:${themeColor}; font-weight:bold;">${label}</small><br>
-                                        <span style="color:#888; font-size:11px;">${timeStr}</span><br>
-                                        <strong>${msg}</strong>
-                                     </div>`;
-                        }
-                    });
-                }
-                display.innerHTML = html || "<p style='color:#2ecc71;'>No unauthorized events.</p>";
-            } catch (err) { display.innerHTML = "<p>Connection Error.</p>"; }
+                data.notifications.forEach(n => {
+                    let msg = n.contents.en;
+                    if (msg.includes("via APP") || (Math.abs(n.queued_at - lastButtonPressTime) < 30)) return;
+                    html += `<div style="padding:10px; border-bottom:1px solid #333;">${msg}</div>`;
+                });
+                document.getElementById("securityLogDisplay").innerHTML = html || "No events";
+            } catch (e) { console.log(e); }
         }
 
-        // ... (Include other standard helper functions like verifyPin, send, etc. as per your original file)
-        function verifyPin() { send("VERIFY|" + document.getElementById('entryPin').value); }
-        function send(c) { if(client && client.isConnected()){ let m = new Paho.MQTT.Message(c); m.destinationName = "samxi/"+dev+"/cmd"; client.send(m); } }
-        function save() { send("CONFIG|" + document.getElementById('at').value + "|" + document.getElementById('ae').value); alert("Saved!"); }
+        function clearHistory() {
+            localStorage.setItem("samxi_logs", "[]");
+            localStorage.setItem("samxi_log_clear_time", Math.floor(Date.now() / 1000));
+            document.getElementById("securityLogDisplay").innerHTML = "Cleared";
+        }
     </script>
 </body>
 </html>
