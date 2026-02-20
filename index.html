@@ -40,14 +40,27 @@
     </script>
 
     <style>
+        /* Fixes button alignment and spacing in the Settings Modal */
 .modal-content button {
-    width: 100%; height: 55px; margin: 10px 0; padding: 0; font-size: 1.1rem; border-radius: 12px;
-    display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; font-weight: bold;
+    width: 100%;
+    height: 55px;         /* Consistent height for all modal buttons */
+    margin: 10px 0;       /* Vertical spacing between buttons */
+    padding: 0;           /* Clean padding */
+    font-size: 1.1rem;    /* Uniform font size */
+    border-radius: 12px;  /* Rounded corners like the main UI */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
 }
         body{font-family:sans-serif;text-align:center;background:#141414;color:white;margin:0;}
         .header{background:#1a1a1a;padding:15px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #2ecc71;}
         .led-group{display:flex; align-items:center; gap:12px;}
-        .wifi-box{font-size:0.75rem; font-weight:bold; color:#888; display:flex; align-items:center; gap:4px; background:#222; padding:3px 12px; border-radius:15px; border:1px solid #333; transition: 0.3s;}
+        .wifi-box{font-size:0.75rem; font-weight:bold; color:#888; display:flex; align-items:center; gap:4px; background:#222; padding:3px 12px; border-radius:15px;
+
+border:1px solid #333; transition: 0.3s;}
         .sig-excellent{color:#00ff7f; border-color: #00ff7f;}
         .sig-good{color:#f1c40f; border-color: #f1c40f;}
         .sig-weak{color:#ff4d4d; border-color: #ff4d4d;}
@@ -58,7 +71,9 @@
         .container{padding:15px;max-width:400px;margin:auto;}
         #id {font-size: 2rem; font-weight: bold; text-align: center; color: #2ecc71; border: 2px solid #333;}
         input,select{width:100%;padding:15px;margin:10px 0;background:#2a2a2a;border:1px solid #333;color:white;border-radius:8px;box-sizing:border-box;}
-        .status-box{background:#2a2a2a;margin:15px 0;padding:25px;border-radius:12px;font-size:1.6rem;color:#2ecc71;border:1px solid #333;font-weight:bold; transition: 0.3s; position: relative; overflow: hidden;}
+        .status-box{background:#2a2a2a;margin:15px 0;padding:25px;border-radius:12px;font-size:1.6rem;color:#2ecc71;border:1px solid #333;font-weight:bold; transition:
+
+0.3s; position: relative; overflow: hidden;}
         .progress-container{position:absolute; bottom:0; left:0; width:100%; height:6px; background:#1a1a1a; display:none;}
         .progress-bar{height:100%; width:0%; background:#2ecc71; transition: linear;}
         .net-status{font-size:0.9rem; margin-bottom:10px; padding:5px; border-radius:5px;}
@@ -66,7 +81,9 @@
         .offline-bg{background:#3a1e1e; color:#ff4d4d;}
         .alert-active{background:#ff4d4d !important; color:white !important; animation: blink 1s infinite;}
         @keyframes blink { 50% { opacity: 0.5; } }
-        .btn{width:100%;margin:10px 0;padding:20px;font-size:1.5rem;border:none;border-radius:12px;font-weight:bold;cursor:pointer;color:white;transition:transform 0.1s; height: 70px; display: flex; align-items: center; justify-content: center;}
+        .btn{width:100%;margin:10px 0;padding:20px;font-size:1.5rem;border:none;border-radius:12px;font-weight:bold;cursor:pointer;color:white;transition:transform 0.1s;
+
+height: 70px; display: flex; align-items: center; justify-content: center;}
         .btn:active{transform:scale(0.96);}
         .up{background:#2ecc71;}
         .stop{background:#e74c3c;}
@@ -75,13 +92,19 @@
         .timer-lock{pointer-events:none; opacity:0.35 !important; filter: contrast(0.8);}
         .hist-btn{background:#444; font-size:1.1rem; height:50px; margin-top:20px; border:1px solid #555;}
         #modal, #hModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:100; overflow-y: auto;}
-        .modal-content{background:#1c1c1c; width:85%; max-width:350px; margin:30px auto; padding:25px; border-radius:20px; text-align:left; border:1px solid #333; padding-bottom: 50px;}
-        .exit-link {background:none; color:#FFFFFF !important; border:none; margin-top:30px; display:block; width:100%; font-weight:900; font-size:2rem; cursor:pointer; text-shadow:0 0 10px #ffffff, 0 0 20px #ffffff; text-align: center;}
+        .modal-content{background:#1c1c1c; width:85%; max-width:350px; margin:30px auto; padding:25px; border-radius:20px; text-align:left; border:1px solid #333;
+
+padding-bottom: 50px;}
+        .exit-link {background:none; color:#FFFFFF !important; border:none; margin-top:30px; display:block; width:100%; font-weight:900; font-size:2rem; cursor:pointer;
+
+text-shadow:0 0 10px #ffffff, 0 0 20px #ffffff; text-align: center;}
         #logList{list-style:none; padding:0; margin:0; max-height:350px; overflow-y:auto;}
         .log-item{padding:10px; border-bottom:1px solid #333; display:flex; flex-direction:column; font-size:0.85rem;}
         .log-date{color:#888; font-size:0.75rem;}
         .log-msg{color:#2ecc71; font-weight:bold; margin-top:3px;}
-        #toast {visibility: hidden; min-width: 280px; color: #fff; text-align: center; border-radius: 12px; padding: 18px; position: fixed; z-index: 1000; left: 50%; bottom: 40px; transform: translateX(-50%); box-shadow: 0 8px 20px rgba(0,0,0,0.6); font-weight: bold; font-size: 1.1rem; transition: 0.3s;}
+        #toast {visibility: hidden; min-width: 280px; color: #fff; text-align: center; border-radius: 12px; padding: 18px; position: fixed; z-index: 1000; left: 50%; bottom: 40px;
+
+transform: translateX(-50%); box-shadow: 0 8px 20px rgba(0,0,0,0.6); font-weight: bold; font-size: 1.1rem; transition: 0.3s;}
         #toast.show {visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s;}
         .toast-red { background-color: #e74c3c; border: 2px solid #c0392b; }
         .toast-green { background-color: #2ecc71; border: 2px solid #27ae60; color: #141414 !important; }
@@ -96,7 +119,15 @@
             <div id="wifiSig" class="wifi-box" style="display:none;">📶 <span id="rssiVal">--</span></div>
             <div id="led" class="led"></div>
             <svg id="gear" class="gear-icon" onclick="document.getElementById('modal').style.display='block'" viewBox="0 0 24 24">
-                <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03 -.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21 -.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03
+
+-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21
+
+-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36
+
+2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12
+
+15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
             </svg>
         </div>
     </div>
@@ -135,9 +166,15 @@
             <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
             <label>Update PIN:</label>
             <input type="password" id="newPin" placeholder="4 Digits" maxlength="4">
-            <button onclick="changePin()" style="width:100%;background:#f1c40f;padding:15px;border:none;border-radius:8px;font-weight:bold;margin-bottom:10px;cursor:pointer;">SET NEW PIN</button>
-            <button onclick="save()" style="width:100%;background:#2ecc71;padding:15px;border:none;border-radius:8px;font-weight:bold;color:black;margin-top:10px;cursor:pointer;">SAVE SETTINGS</button>
-            <button onclick="factoryReset()" style="width:100%;background:#e74c3c;padding:15px;border:none;border-radius:8px;margin-top:15px;color:white;font-weight:bold;cursor:pointer;">FACTORY RESET</button>
+            <button onclick="changePin()" style="width:100%;background:#f1c40f;padding:15px;border:none;border-radius:8px;font-weight:bold;margin-
+
+bottom:10px;cursor:pointer;">SET NEW PIN</button>
+            <button onclick="save()" style="width:100%;background:#2ecc71;padding:15px;border:none;border-radius:8px;font-weight:bold;color:black;margin-
+
+top:10px;cursor:pointer;">SAVE SETTINGS</button>
+            <button onclick="factoryReset()" style="width:100%;background:#e74c3c;padding:15px;border:none;border-radius:8px;margin-top:15px;color:white;font-
+
+weight:bold;cursor:pointer;">FACTORY RESET</button>
             <button onclick="document.getElementById('modal').style.display='none'" class="exit-link">EXIT</button>
         </div>
     </div>
@@ -145,9 +182,13 @@
     <div class="modal-content">
         <h2 style="color:#2ecc71; margin-top:0;">ACTIVITY HISTORY</h2>
         <ul id="logList"></ul>
+
         <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
-        <button onclick="fetchSecurityLogs()" style="width:100%; background:#d9534f; color:white; padding:15px; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">🛡️ UN-AUTHORIZED LOG</button>
-        <div id="securityLogDisplay" style="margin-top:15px; max-height:250px; overflow-y:auto; font-size: 0.9rem;"></div>
+        <button onclick="fetchSecurityLogs()" style="width:100%; background:#d9534f; color:white; padding:15px; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">
+            🛡️ UN-AUTHORIZED LOG
+        </button>
+        <div id="securityLogDisplay" style="margin-top:15px; max-height:250px; overflow-y:auto; font-size: 0.9rem;">
+             </div>
         <button onclick="clearHistory()" style="width:100%;background:#444;padding:10px;border:none;border-radius:8px;margin-top:20px;color:white;cursor:pointer;">CLEAR LOGS</button>
         <button onclick="document.getElementById('hModal').style.display='none'" class="exit-link">EXIT</button>
     </div>
@@ -233,8 +274,23 @@
             if(type === 'down') displayTxt = "CLOSING...";
             if(type === 'stop') displayTxt = "STOPPED";
            
+            isStatusLocked = true;
             const s = document.getElementById('stat');
             s.innerHTML = displayTxt + document.getElementById('pCont').outerHTML;
+            showProgress(8);
+           
+            setTimeout(() => {
+                isStatusLocked = false;
+                if(lastSensorStatus === "OPEN") {
+                    s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML;
+                    s.style.backgroundColor = "#3a1e1e";
+                }
+                else if(lastSensorStatus === "CLOSED") {
+                    s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML;
+                    s.style.backgroundColor = "#1e3a1e";
+                }
+                else s.innerHTML = "SYSTEM READY" + document.getElementById('pCont').outerHTML;
+            }, 8000);
 
             addLog(logMsg);
             send(type);
@@ -362,6 +418,7 @@
     dev = document.getElementById('id').value.trim();
     localStorage.setItem("samxi_id", dev);
    
+    // --- THIS IS THE CRITICAL AUTO-SYNC TRIGGER ---
     try {
         if (window.OneSignalDeferred) {
             OneSignalDeferred.push(async function(OneSignal) {
@@ -379,6 +436,7 @@
 client.onConnectionLost = (e) => {
     if(!isCountingDown) {
         document.getElementById('led').className = "led red";
+        // Show the Reconnect button inside the status box
         document.getElementById('stat').innerHTML = `
             OFFLINE
             <button onclick="connect()" style="margin-top:10px; padding:5px 15px; background:#f1c40f; color:black; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">
@@ -403,12 +461,12 @@ client.onConnectionLost = (e) => {
                         vibrateAlert('opening');
                         addLog("Detected : GateOpened");
                         startGateReminder();
-                        alert("SAMXI ALERT: Gate is Opened!"); 
+                        alert("SAMXI ALERT: Gate is Opened!"); // Browser Alert
                     }
                     lastSensorStatus = "OPEN";
                     if(!isStatusLocked) {
                         s.innerHTML = "GATE OPENED" + document.getElementById('pCont').outerHTML;
-                        s.style.backgroundColor = "#3a1e1e";
+                        s.style.backgroundColor = "#3a1e1e"; // Red theme for open
                         hideProgress();
                     }
                 } else if (p === "CLOSED") {
@@ -417,12 +475,12 @@ client.onConnectionLost = (e) => {
                         vibrateAlert('closed');
                         addLog("Detected : GateClosed");
                         stopGateReminder();
-                        alert("SAMXI INFO: Gate is Closed.");
+                        alert("SAMXI INFO: Gate is Closed."); // Browser Alert
                     }
                     lastSensorStatus = "CLOSED";
                     if(!isStatusLocked) {
                         s.innerHTML = "GATE CLOSED" + document.getElementById('pCont').outerHTML;
-                        s.style.backgroundColor = "#1e3a1e";
+                        s.style.backgroundColor = "#1e3a1e"; // Green theme for closed
                         hideProgress();
                     }
                 }
@@ -515,20 +573,25 @@ client.onConnectionLost = (e) => {
             }
         }
 
+        // --- SECURITY LOG FETCHING & FILTERING ---
+       // --- SECURE SECURITY LOG FETCHING (NO HARDCODED KEY) ---
         async function fetchSecurityLogs() {
             const appId = "a71c864f-2514-4798-b919-4511e0801b5a";
+            const display = document.getElementById("securityLogDisplay");
+
+            // Look for key in your phone's memory
             let restKey = localStorage.getItem("samxi_rest_key");
 
+            // If not found, ask you to paste it (Only happens once)
             if (!restKey) {
                 restKey = prompt("Please enter your new OneSignal REST API Key:");
                 if (restKey) {
                     localStorage.setItem("samxi_rest_key", restKey);
                 } else {
-                    return; 
+                    return;
                 }
             }
 
-            const display = document.getElementById("securityLogDisplay");
             display.innerHTML = "<p style='text-align:center; color:#888;'>Checking System Records...</p>";
 
             try {
@@ -540,27 +603,27 @@ client.onConnectionLost = (e) => {
                     }
                 });
 
+                const data = await response.json();
+               
+                // If the key was deleted or wrong, clear it and ask again next time
                 if (response.status === 401) {
                     localStorage.removeItem("samxi_rest_key");
-                    display.innerHTML = "<p style='text-align:center; color:#ff4d4d;'>Invalid Key. Reload to try again.</p>";
+                    display.innerHTML = "<p style='text-align:center; color:#ff4d4d;'>Invalid Key. Try again.</p>";
                     return;
                 }
 
-                const data = await response.json();
                 let html = "";
-
                 if (data.notifications && data.notifications.length > 0) {
                     data.notifications.forEach(notif => {
                         let msg = notif.contents.en;
-                        if (msg.includes("still open")) return; 
-                        if (msg.includes("via APP")) return; 
+                        if (msg.includes("still open") || msg.includes("via APP")) return;
                         if (!msg.includes("MANUALLY") && !msg.includes("ALERT")) return;
 
                         let date = new Date(notif.queued_at * 1000);
                         let timeStr = date.toLocaleString('en-GB', { timeZone: 'Asia/Colombo' });
                        
                         html += `<div style="padding:10px; border-bottom:1px solid #333; background:#222; margin-bottom:5px; border-radius:8px; border-left: 5px solid #ff4d4d;">
-                                    <small style="color:#ff4d4d; font-weight:bold;"> UN-AUTHORIZED EVENT</small><br>
+                                    <small style="color:#ff4d4d; font-weight:bold;">⚠️ UN-AUTHORIZED EVENT</small><br>
                                     <span style="color:#888; font-size:11px;">${timeStr}</span><br>
                                     <strong style="color:#eee;">${msg}</strong>
                                  </div>`;
