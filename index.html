@@ -405,10 +405,15 @@
             const val = document.getElementById('rssiVal');
             box.style.display = 'flex';
             const r = parseInt(rssi);
-            let statusText = r >= -60 ? "BEST" : r >= -70 ? "GOOD" : r >= -80 ? "MODERATE" : "WEAK";
-            box.className = "wifi-box " + (r >= -60 ? "sig-excellent" : r >= -80 ? "sig-good" : "sig-weak");
+            let statusText = "";
+            if (r >= -50) { statusText = "EXTREME"; box.className = "wifi-box sig-excellent"; }
+            else if (r >= -60) { statusText = "BEST"; box.className = "wifi-box sig-excellent"; }
+            else if (r >= -70) { statusText = "GOOD"; box.className = "wifi-box sig-good"; }
+            else if (r >= -80) { statusText = "MODERATE"; box.className = "wifi-box sig-good"; }
+            else { statusText = "WEAK"; box.className = "wifi-box sig-weak"; }
             val.innerText = statusText + " (" + r + "dBm)";
         }
+
         function showProgress(duration) {
             const cont = document.getElementById('pCont');
             const bar = document.getElementById('pBar');
