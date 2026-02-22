@@ -360,7 +360,11 @@
                             }
                         }
                     } else if (p === "START_AUTO") { startAuto(); }
-                    else if (p === "PIN_CHANGED") { localStorage.setItem("samxi_pin", document.getElementById('newPin').value); document.getElementById('entryPin').value = document.getElementById('newPin').value; showToast("PIN Updated", "green"); }
+                    else if (p === "PIN_CHANGED") { 
+    localStorage.setItem("samxi_pin", document.getElementById('newPin').value); 
+    document.getElementById('entryPin').value = document.getElementById('newPin').value; 
+    showToast("PIN UPDATED SUCCESSFULLY", "green"); 
+}
                 }
             };
             client.connect({
