@@ -368,18 +368,26 @@
 }
                 }
             };
-            client.connect({
-                useSSL:true, keepAliveInterval: 10, timeout: 5,
-                onSuccess: () => {
-                    client.subscribe("samxi/"+dev+"/state");
-                    requestWakeLock();
-                    send("GET_STATE");
-                    const ns = document.getElementById('netStat');
-                    ns.innerText = "System Ready"; ns.className = "net-status online-bg";
-                    setTimeout(() => { ns.style.display = 'none'; }, 2000);
-                },
-                onFailure: () => { setTimeout(connect, 3000); }
-            });
+    client.connect({
+    useSSL: true, 
+    keepAliveInterval: 10, 
+    timeout: 5, 
+    reconnect: true,         // Correct: This enables automatic reconnection
+    cleanSession: false,     // Critical: Keeps your subscription active during drops
+    onSuccess: () => {
+        client.subscribe("samxi/" + dev + "/state", { qos: 1 }); // QoS 1 ensures message delivery
+        requestWakeLock();
+        send("GET_STATE");
+        const ns = document.getElementById('netStat');
+        ns.innerText = "System Ready"; 
+        ns.className = "net-status online-bg";
+        setTimeout(() => { ns.style.display = 'none'; }, 2000);
+    },
+    onFailure: (e) => {
+        console.log("Connect Failed: " + e.errorMessage);
+        setTimeout(connect, 5000); // Manual retry if auto-reconnect fails
+    }
+});
         }
         function verifyPin() {
             if(audioCtx.state === 'suspended') audioCtx.resume();
