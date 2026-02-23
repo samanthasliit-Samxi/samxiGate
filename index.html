@@ -388,15 +388,16 @@
         }
         function changePin() {
             let np = document.getElementById('newPin').value;
-            if(np.length<4){alert("4 Digits Required!"); return;}
+            if(np.length<4){alert("ENTER 4 DIGITS!"); return;}
             send("SETPIN|"+np);
+            alert("PIN UPDATED SUCCESSFULLY!");
         }
         function save() {
             let timerVal = document.getElementById('at').value;
             let autoVal = document.getElementById('ae').value;
             currentWait = timerVal; timerEditing = false;
             send("CONFIG|" + timerVal + "|" + autoVal);
-            alert("Settings Saved!");
+            alert("YOUR SETTINGS SAVED!");
         }
         function factoryReset() { if(confirm("Are you sure? This will wipe all settings and restart the device.")) send('RESET_FACTORY'); }
         function send(c) {
