@@ -372,8 +372,7 @@
     useSSL: true, 
     keepAliveInterval: 10, 
     timeout: 5, 
-    reconnect: true,         // Correct: This enables automatic reconnection
-    cleanSession: false,     // Critical: Keeps your subscription active during drops
+
     onSuccess: () => {
         client.subscribe("samxi/" + dev + "/state", { qos: 1 }); // QoS 1 ensures message delivery
         requestWakeLock();
