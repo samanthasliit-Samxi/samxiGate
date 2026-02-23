@@ -369,7 +369,7 @@
                 }
             };
             client.connect({
-                useSSL:true, keepAliveInterval: 10, timeout: 5, reconnect: true,
+                useSSL:true, keepAliveInterval: 10, timeout: 5, reconnect: true,cleanSession: false,
                 onSuccess: () => {
                     client.subscribe("samxi/"+dev+"/state");
                     requestWakeLock();
