@@ -340,14 +340,19 @@
                 } else if (p === "ONLINE" || p === "PAUSED" || p.startsWith("DATA|")) {
                     document.getElementById('pg1').style.display='none';
                     if(document.getElementById('pg3').style.display !== 'block') document.getElementById('pg2').style.display='block';
-                    if(p.startsWith("DATA|")) {
+                   if(p.startsWith("DATA|")) {
                         let d = p.split("|");
                         updateWiFi(d[1]);
-                        if (!timerEditing) { document.getElementById('at').value = d[3]; currentWait = d[3]; }
-                        document.getElementById('ae').value = d[2];
-                        document.getElementById('abtn').style.display = (d[2]=="1") ? "block" : "none";
                         
-                        // --- CRITICAL FIX: SYNC STATUS IMMEDIATELY UPON CONNECT ---
+                        // ONLY update the settings fields if the user is NOT currently editing them
+                        if (!timerEditing) { 
+                            document.getElementById('at').value = d[3]; 
+                            currentWait = d[3]; 
+                            document.getElementById('ae').value = d[2];
+                            document.getElementById('abtn').style.display = (d[2] == "1") ? "block" : "none";
+                        }
+                        
+                        // Always sync the status box logic
                         if(!isStatusLocked) {
                             if(p.includes("OPEN")) {
                                 lastSensorStatus = "OPEN";
@@ -359,7 +364,8 @@
                                 s.style.backgroundColor = "#1e3a1e";
                             }
                         }
-                    } else if (p === "START_AUTO") { 
+                    } 
+                    else if (p === "START_AUTO") { 
     startAuto(); 
 } else if (p === "PIN_CHANGED") { 
     localStorage.setItem("samxi_pin", document.getElementById('newPin').value); 
@@ -395,15 +401,34 @@
         }
         function changePin() {
             let np = document.getElementById('newPin').value;
-            if(np.length<4){alert("ENTER 4 DIGITS!"); return;}
-            send("SETPIN|"+np);
+            if(np.length < 4) {
+                alert("ENTER 4 DIGITS!"); 
+                return;
+            }
+            // Send the command to hardware
+            send("SETPIN|" + np);
+            
+            // Clear the field for security
+            document.getElementById('newPin').value = "";
+            
+            showToast("PIN UPDATE SENT", "green");
             alert("PIN UPDATED SUCCESSFULLY!");
         }
         function save() {
             let timerVal = document.getElementById('at').value;
             let autoVal = document.getElementById('ae').value;
-            currentWait = timerVal; timerEditing = false;
+            
+            // Lock the local variables immediately
+            currentWait = timerVal; 
+            timerEditing = false;
+            
+            // Send the config to the Door
             send("CONFIG|" + timerVal + "|" + autoVal);
+            
+            // Manually update the main screen button visibility
+            document.getElementById('abtn').style.display = (autoVal == "1") ? "block" : "none";
+            
+            showToast("SETTINGS SAVED!", "green");
             alert("YOUR SETTINGS SAVED!");
         }
         function factoryReset() { if(confirm("Are you sure? This will wipe all settings and restart the device.")) send('RESET_FACTORY'); }
