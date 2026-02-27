@@ -345,11 +345,21 @@
                         updateWiFi(d[1]);
                         
                         // ONLY update the settings fields if the user is NOT currently editing them
-                        if (!timerEditing) { 
-                            document.getElementById('at').value = d[3]; 
-                            currentWait = d[3]; 
-                            document.getElementById('ae').value = d[2];
-                            document.getElementById('abtn').style.display = (d[2] == "1") ? "block" : "none";
+                        // --- SMART SYNC FIX ---
+let savedTimer = localStorage.getItem("samxi_timer");
+let savedAuto = localStorage.getItem("samxi_auto");
+
+// Timer sync
+if (!timerEditing) {
+    let timerToUse = savedTimer ? savedTimer : d[3];
+    document.getElementById('at').value = timerToUse;
+    currentWait = timerToUse;
+}
+
+// Auto enable sync
+let autoToUse = savedAuto ? savedAuto : d[2];
+document.getElementById('ae').value = autoToUse;
+document.getElementById('abtn').style.display = (autoToUse=="1") ? "block" : "none";
                         }
                         
                         // Always sync the status box logic
@@ -400,37 +410,30 @@
             send("VERIFY|" + document.getElementById('entryPin').value);
         }
         function changePin() {
-            let np = document.getElementById('newPin').value;
-            if(np.length < 4) {
-                alert("ENTER 4 DIGITS!"); 
-                return;
-            }
-            // Send the command to hardware
-            send("SETPIN|" + np);
-            
-            // Clear the field for security
-            document.getElementById('newPin').value = "";
-            
-            showToast("PIN UPDATE SENT", "green");
-            alert("PIN UPDATED SUCCESSFULLY!");
-        }
+    let np = document.getElementById('newPin').value;
+    if(np.length<4){alert("ENTER 4 DIGITS!"); return;}
+
+    // --- LOCAL UPDATE (CRITICAL FIX) ---
+    localStorage.setItem("samxi_pin", np);
+    document.getElementById('entryPin').value = np;
+
+    send("SETPIN|"+np);
+    alert("PIN UPDATED SUCCESSFULLY!");
+}
         function save() {
-            let timerVal = document.getElementById('at').value;
-            let autoVal = document.getElementById('ae').value;
-            
-            // Lock the local variables immediately
-            currentWait = timerVal; 
-            timerEditing = false;
-            
-            // Send the config to the Door
-            send("CONFIG|" + timerVal + "|" + autoVal);
-            
-            // Manually update the main screen button visibility
-            document.getElementById('abtn').style.display = (autoVal == "1") ? "block" : "none";
-            
-            showToast("SETTINGS SAVED!", "green");
-            alert("YOUR SETTINGS SAVED!");
-        }
+    let timerVal = document.getElementById('at').value;
+    let autoVal = document.getElementById('ae').value;
+
+    // --- LOCAL PERSIST (CRITICAL FIX) ---
+    localStorage.setItem("samxi_timer", timerVal);
+    localStorage.setItem("samxi_auto", autoVal);
+
+    currentWait = timerVal;
+    timerEditing = false;
+
+    send("CONFIG|" + timerVal + "|" + autoVal);
+    alert("YOUR SETTINGS SAVED!");
+}
         function factoryReset() { if(confirm("Are you sure? This will wipe all settings and restart the device.")) send('RESET_FACTORY'); }
         function send(c) {
             if(client && client.isConnected()){
