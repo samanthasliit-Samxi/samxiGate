@@ -554,6 +554,49 @@
             if(savedID) document.getElementById('id').value = savedID;
             if(localStorage.getItem("samxi_pin")) document.getElementById('entryPin').value = localStorage.getItem("samxi_pin");
         };
+        function downloadHistoryCSV() {
+    // 1. Get both standard and unauthorized logs from memory
+    let standardLogs = JSON.parse(localStorage.getItem("samxi_logs") || "[]");
+    let securityLogs = JSON.parse(localStorage.getItem("persistent_auth_logs") || "[]");
+    
+    // Combine them into one list
+    let allLogs = [...standardLogs, ...securityLogs];
+
+    if (allLogs.length === 0) {
+        showToast("No history to download!", "error");
+        return;
+    }
+
+    // Sort by date (newest first)
+    allLogs.sort((a, b) => new Date(b.date || b.timestamp * 1000) - new Date(a.date || a.timestamp * 1000));
+
+    // 2. Create CSV Header
+    let csvContent = "Date and Time,Message\n";
+
+    // 3. Format rows for CSV
+    allLogs.forEach(log => {
+        let date = log.date || new Date(log.timestamp * 1000).toLocaleString();
+        // Remove commas from messages to prevent breaking CSV columns
+        let cleanMsg = log.msg.replace(/,/g, " "); 
+        csvContent += `${date},${cleanMsg}\n`;
+    });
+
+    // 4. Trigger the download on the phone
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    
+    let devID = localStorage.getItem("samxi_id") || "SAMXI_DOOR";
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${devID}_Activity_Log.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showToast("File Downloaded!", "green");
+}
     </script>
 </body>
 </html>
