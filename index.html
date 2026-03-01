@@ -471,13 +471,14 @@
             }, 1000);
         }
 
-        async function fetchSecurityLogs() {
+    async function fetchSecurityLogs() {
     const appId = "a71c864f-2514-4798-b919-4511e0801b5a";
     const display = document.getElementById("securityLogDisplay");
     let restKey = localStorage.getItem("samxi_rest_key");
     
     // 1. Load existing saved logs from phone memory
     let localAuthLogs = JSON.parse(localStorage.getItem("persistent_auth_logs") || "[]");
+    const clearTime = parseInt(localStorage.getItem("samxi_log_clear_time") || "0");
 
     if (!restKey) {
         restKey = prompt("Please enter your OneSignal REST API Key:");
@@ -494,23 +495,31 @@
         const data = await response.json();
 
         if (data.notifications) {
-            data.notifications.forEach(notif => {
+            let lastTimestamp = 0; // Helper to track the time of the previous processed log
+
+            // Process notifications from oldest to newest to filter duplicates correctly
+            data.notifications.reverse().forEach(notif => {
                 let msg = notif.contents.en;
                 let notifId = notif.id;
+                let currentTS = notif.queued_at;
                 
-                // FILTER: Only keep actual alerts, ignore "via APP" or "still open" reminders
+                // FILTER: Only keep alerts/success, ignore "via APP" or "still open" reminders
                 if (!msg.includes("via APP") && !msg.includes("still open") && (msg.includes("ALERT") || msg.includes("SUCCESS"))) {
                     
+                    // --- THE TRIPLE-WAKE FILTER ---
+                    // If this message arrived within 10 seconds of the last one, it's a duplicate wake-up. Skip it.
+                    const isDuplicateWake = (currentTS - lastTimestamp) < 10;
                     const exists = localAuthLogs.some(log => log.id === notifId);
                     
-                    if (!exists) {
-                        let date = new Date(notif.queued_at * 1000).toLocaleString();
+                    if (!exists && !isDuplicateWake && currentTS > clearTime) {
+                        let date = new Date(currentTS * 1000).toLocaleString();
                         localAuthLogs.push({
                             id: notifId,
                             msg: msg,
                             date: date,
-                            timestamp: notif.queued_at
+                            timestamp: currentTS
                         });
+                        lastTimestamp = currentTS; // Update the marker
                     }
                 }
             });
@@ -523,7 +532,7 @@
             localStorage.setItem("persistent_auth_logs", JSON.stringify(localAuthLogs));
         }
 
-        // 3. DISPLAY from phone memory
+        // 3. DISPLAY
         let html = "";
         localAuthLogs.forEach(log => {
             let themeColor = log.msg.includes("OPENED") ? "#ff4d4d" : "#2ecc71";
@@ -536,7 +545,7 @@
         display.innerHTML = html || "<p style='color:#2ecc71;'>No unauthorized events recorded.</p>";
         
     } catch (err) { 
-        display.innerHTML = "<p style='color:#ff4d4d;'>Offline. Showing last saved logs.</p>";
+        display.innerHTML = "<p style='color:#ff4d4d;'>Error updating. Showing offline logs.</p>"; 
     }
 }
         window.onload = function() {
