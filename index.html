@@ -154,6 +154,7 @@
             <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
             <button onclick="fetchSecurityLogs()" style="background:#d9534f; color:white; font-weight: bold; width: 100%; border-radius: 12px; padding: 15px; border: none; cursor: pointer;">🛡️ UN-AUTHORIZED LOG</button>
             <div id="securityLogDisplay" style="margin-top:15px; max-height:250px; overflow-y:auto; font-size: 0.9rem;"></div>
+            <button onclick="downloadHistoryCSV()" style="background:#3498db; color:white; font-weight: bold; width: 100%; border-radius: 12px; padding: 15px; border: none; cursor: pointer; margin-top: 10px;">📥 DOWNLOAD HISTORY (CSV)</button>
             <button onclick="clearHistory()" style="background:#444; color:white; font-weight: bold; width: 100%; border-radius: 8px; padding: 10px; border: none; cursor: pointer; margin-top: 20px;">CLEAR LOGS</button>
             <button onclick="document.getElementById('hModal').style.display='none'" class="exit-link">EXIT</button>
         </div>
